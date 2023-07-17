@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <!--Test-->
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,7 +49,7 @@
         </div>
 
 
-        <div id = "inputSection" class="row"> <!-- Input section-->
+        <div id="inputSection" class="row"> <!-- Input section-->
 
             <!-- System Properties form-->
             <div class="col-md-6">
@@ -186,15 +187,21 @@
                         <input id="lineDesc" type="text" class="inputField">
                     </div>
                     <div class="form-group">
-                        <label for="pipeSizeNum" class="form-label">Enter the pipesize:</label>
-                        <input id="pipeSizeNum" type="number" class="inputField" min="0" max="40">
+                        <div class="input-append">
+                            <label for="pipeSizeNum" class="form-label">Enter the pipesize:</label>
+                            <input id="pipeSizeNum" type="number" class="span2" min="0" max="40">
 
+
+                            <span class="add-on">inches</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="pressure">What is the maximum pressure that can be expected: </label>
-                        <input id="pressure" type="number" min="0" max="500" class="inputField">
-
+                        <div class="input-append">
+                            <label for="pressure">What is the maximum pressure that can be expected: </label>
+                            <input id="pressure" type="number" min="0" max="500" class="span2">
+                            <span class="add-on">Bar</span>
+                        </div>
                     </div>
                     <br>
 
@@ -243,138 +250,139 @@
         <button type="button" class="btn btn-outline-primary" onclick="getInputData()" style="display:none;"
             id="calcBtn">Calculate</button>
 
-            <button type="button" class="btn btn-outline-primary" onclick="goBack()" style="display:none;"
+        <button type="button" class="btn btn-outline-primary" onclick="goBack()" style="display:none;"
             id="backBtn">Return to input data</button>
 
 
-    </div>
-    <!-- Output Section-->
-    <div class="card" style="display:none;" id="outCard">
 
-        <h3 class="card-header">
-            Isolation Selector Tool Outcome
-        </h3>
-        <h4>TAQA's Safety Rule No 3: Ensure energy is isolated prior to working on plant or equipment.</h4>
-        <div class="card-body">
-            <p class="card-text">
+        <!-- Output Section-->
+        <div class="card" style="display:none;" id="outCard">
 
-            <div class="row">
-                <div class="col-md-6">
-                    <table class="table" style="border: 1px dashed rgb(66, 133, 244);">
-                        <thead>
-                            <tr> </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row">System/Line to be isolated:</th>
-                                <td id="outTitle"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Purpose of isolation:</th>
-                                <td id="outPur"></td>
-                            </tr>
+            <h3 class="card-header">
+                Isolation Selector Tool Outcome
+            </h3>
+            <h4>TAQA's Safety Rule No 3: Ensure energy is isolated prior to working on plant or equipment.</h4>
+            <div class="card-body">
+                <p class="card-text">
 
-                            <tr>
-                                <th scope="row">Substance within isolated envelop:</th>
-                                <td id="outSub"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">How long will containment will be broken for:</th>
-                                <td id="outDur"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table" style="border: 1px dashed rgb(66, 133, 244);">
+                            <thead>
+                                <tr> </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">System/Line to be isolated:</th>
+                                    <td id="outTitle"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Purpose of isolation:</th>
+                                    <td id="outPur"></td>
+                                </tr>
+
+                                <tr>
+                                    <th scope="row">Substance within isolated envelop:</th>
+                                    <td id="outSub"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">How long will containment will be broken for:</th>
+                                    <td id="outDur"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table" style="border: 1px dashed rgb(66, 133, 244);">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Line description:</th>
+                                    <td id="outLineDesc"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Maximum expected pressure:</th>
+                                    <td id="outBar"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Pipework Size:</th>
+                                    <td id="outPipe"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Isolation Selected:</th>
+                                    <td id="outIsoSel"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                </p>
+
+                <div class="row"> <!-- This section gives the output icon and a message next to it-->
+                    <div class="col-md-3">
+                        <img id=outImg src="" alt="" height="100px" width="100px">
+                    </div>
+                    <div class="col-md-9">
+                        <p id="isoOutcome"></p>
+                    </div>
 
                 </div>
-                <div class="col-md-6">
-                    <table class="table" style="border: 1px dashed rgb(66, 133, 244);">
-                        <tbody>
-                            <tr>
-                                <th scope="row">Line description:</th>
-                                <td id="outLineDesc"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Maximum expected pressure:</th>
-                                <td id="outBar"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Pipework Size:</th>
-                                <td id="outPipe"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Isolation Selected:</th>
-                                <td id="outIsoSel"></td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
-            </p>
-
-            <div class="row"> <!-- This section gives the output icon and a message next to it-->
-                <div class="col-md-3">
-                    <img id=outImg src="" alt="" height="100px" width="100px">
-                </div>
-                <div class="col-md-9">
-                    <p id="isoOutcome"></p>
-                </div>
-
-            </div>
-            <!-- For testing only
+                <!-- For testing only
             <P>Total Score is</P>
             <p id="totalScore"></p>
             -->
-            <br>
-            <h4>The minium required level for this isolation is:</h4>
-            <div class="row">
-                <div class="col-md-6">
-                    <img id=outIsoImg src="" alt="" height="125px" width="300px">
+                <br>
+                <h4>The minium required level for this isolation is:</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <img id=outIsoImg src="" alt="" height="125px" width="300px">
+                    </div>
+                    <div class="col-md-6">
+                        <p id="outIsoText"></p>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <p id="outIsoText"></p>
-                </div>
+
+
+
+
+            </div>
+            <div class="card-footer">
+                <ul> Isolation Controls required are:
+                    <li id="listControl1"></li>
+                    <li id="listControl2"></li>
+                    <li id="listControl3"></li>
+                    <li id="listControl4"></li>
+                    <li id="listControl5"></li>
+                    <li id="listControl6"></li>
+                </ul>
+                <br>
+                <ul> Preparation of equipment requirements:
+                    <li id="prepControl1"></li>
+                    <li id="prepControl2"></li>
+                    <li id="prepControl3"></li>
+                    <li id="prepControl4"></li>
+                </ul>
+
+
             </div>
 
 
 
 
         </div>
-        <div class="card-footer">
-            <ul> Isolation Controls required are:
-                <li id="listControl1"></li>
-                <li id="listControl2"></li>
-                <li id="listControl3"></li>
-                <li id="listControl4"></li>
-                <li id="listControl5"></li>
-                <li id="listControl6"></li>
-            </ul>
-            <br>
-            <ul> Preparation of equipment requirements:
-                <li id="prepControl1"></li>
-                <li id="prepControl2"></li>
-                <li id="prepControl3"></li>
-                <li id="prepControl4"></li>
-            </ul>
-
-
-        </div>
 
 
 
+
+
+
+        <button type="button" class="btn btn-outline-primary" onclick="printPDF()" id="printBtn"
+            style="display:none;">Save
+            as PDF</button>
 
     </div>
-
-
-
-
-
-
-    <button type="button" class="btn btn-outline-primary" onclick="printPDF()" id="printBtn" style="display:none;">Save
-        as PDF</button>
-
-
 
 </body>
 

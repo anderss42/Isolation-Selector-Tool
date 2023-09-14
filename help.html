@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Isolation Selector Tool Help Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="JS/main.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"
+        integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="CSS/stlyes.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js"
+        integrity="sha512-w3u9q/DeneCSwUDjhiMNibTRh/1i/gScBVp2imNVAMCt6cUHIw6xzhzcPFIaL3Q1EbI2l+nu17q2aLJJLo4ZYg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <!-- Header with images-->
+        <div class="row" id="header">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3 my-auto">
+                        <img src="imgs/doNotOperate.png" width="150" height="100">
+                    </div>
+                    <div class="col-md-6 my-auto">
+                        <h1 class="text-center">
+                            Isolation Selector Tool Help Guide
+                        </h1>
+                    </div>
+                    <div class="col-md-3">
+                        <img src="imgs/TAQA.jpg" width="250" height="150">
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Input</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>What is being isolated and why?</td>
+                    <td>This is a text entry box that should contain the equipment description and why it is being
+                        isolated. 
+                        Example: P14205-A Oil export pump isolated for mechanical seal change out. </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">2</th>
+                    <td>What is the purpose of the isolation?</td>
+                    <td>Options here are for Breaking of Containment, To prevent motion in equipment, Confined Space
+                        Entry and Breaking of containment of small bore tubing. Select the appropriate item by clicking
+                        on the icon.</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>What is the substance?</td>
+                    <td>Options here are for Flammable or Toxic, Hazardous and Non-Hazardous, select the appropriate item by clicking on the icon.</td>
+                </tr>
+                <tr>
+                    <th scope="row">4</th>
+                    <td>How long will containment be broken for?</td>
+                    <td>This is not how long the total task will take, this is the length of time that pipework will be left open and exposed should there be a failure of the isolation. 
+                        Click on the drop down arrow and select the appropriate option. </td>
+                </tr>
+                <tr>
+                    <th scope="row">5</th>
+                    <td>Is this within a boundary isolation?</td>
+                    <td>By selecting this option you are confirming that a boundary isolation is already in place and therefore the expected pressure this isolation would be exposed to is 
+                        minimal. When selected the pressure will be set to zero in the line specifications.  </td>
+                </tr>
+                <tr>
+                    <th scope="row">6</th>
+                    <td>Next Button</td>
+                    <td>Once all of the above information is entered press the Next button to display the line specification section. 
+                        If there is missing information from the above section you will not be able to carry on.   </td>
+                </tr>
+                            <tr>
+                    <th scope="row">7</th>
+                    <td>Enter a description  of the line being assessed.</td>
+                    <td>Enter a description  here of the particular line being assessed. So for example Suction pipework of export pump. Note that a new instance of the selector tool must be 
+                        carried out for each line going to equipment. So one for suction and one for discharge in this example. </td>
+                </tr>
+                <tr>
+                    <th scope="row">8</th>
+                    <td>Enter the pipesize in inches.</td>
+                    <td>Enter the diameter of the line being assessed. Note that if SBT has been selected this will default to 0.5. </td>
+                </tr>
+                <tr>
+                    <th scope="row">9</th>
+                    <td>Enter the maximum pressure that can be expected.</td>
+                    <td>This is the pressure that could be expected under normal operating conditions. So in this example the relief valve pressure on the suction side of the pump is set at 
+                        10bar however under normal operating conditions the maximum pressure expected would be 4bar. Therefore 4 should be entered in this case.  </td>
+                </tr>
+                <tr>
+                    <th scope="row">10</th>
+                    <td>What is the highest level of isolation that could reasonably be applied?</td>
+                    <td>In this example a double block and bleed valve is available on the suction side of the pump. Therefore it is reasonably practiable to use the double block and bleed isolation. 
+                        Click on the appropriate icon to select the isolation you plan to use. </td>
+                </tr>
+                <tr>
+                    <th scope="row">11</th>
+                    <td>Calculate button.</td>
+                    <td>Press this button once all information has been entered. Should anything be missing an alert popup will open showing what is missing. Everything must be filled in before the output screen is show.  </td>
+                </tr>
+                <tr>
+                    <th scope="row">12</th>
+                    <td>Output screen</td>
+                    <td>This will show all the information that has been entered and then a comparison  between the required isolation based on the information supplied and the selected isolation. If the selected isolation meets or 
+                        exceeds the required isolation it will inform you that the isolation can proceed without further risk assessment. If however the isolation selected does not meet the minimum standard then it will display a warning and inform you that a level 2 risk assessment must be carried out.  </td>
+                </tr>
+                <tr>
+                    <th scope="row">13</th>
+                    <td>Go Back button</td>
+                    <td>This will take you back to the input screen where changes can be made to the inputted data.</td>
+                </tr>
+                <tr>
+                    <th scope="row">14</th>
+                    <td>Save as PDF</td>
+                    <td>Shown below the output screen this will create a PDF file and automatically download it to your download folder. This can then renamed and attached to your isolation within TCOW.</td>
+                </tr>
+                <tr>
+                    <th scope="row">15</th>
+                    <td>Finished</td>
+                    <td>When finished with the selector tool simply close the window.</td>
+                </tr>
+
+
+            </tbody>
+        </table>
+
+
+    </div>
+</body>
+
+</html>

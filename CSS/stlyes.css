@@ -11,8 +11,8 @@ input[type=radio]:checked + label>img {
 /* Stuff after this is only to make things more pretty */
 input[type=radio] + label>img {
   border: 0px dashed #444;
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 140px;
   transition: 500ms all;
 }
 
@@ -88,3 +88,43 @@ li {
   font-weight: normal;
   color: black;
 }
+.table td, .table th {
+  padding-top:0;
+  padding-bottom:0;
+  padding-left:2;
+  padding-right:2;
+  border-radius: 2;
+  ;}
+
+  .span2{
+    padding-bottom:3;
+    padding-top:10;
+    
+  }
+
+
+  .center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+
+  .block {
+    display: block;
+    width: 100%;
+    border: none;
+    background-color: #525ec5;
+    padding: 10px 28px;
+    font-size: 20px;
+    color: aliceblue;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  #lineDesc{
+    padding-top: 0px;
+
+  }

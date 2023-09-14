@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-<!--Test-->
 
 <head>
     <meta charset="utf-8">
@@ -23,20 +22,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js"
         integrity="sha512-w3u9q/DeneCSwUDjhiMNibTRh/1i/gScBVp2imNVAMCt6cUHIw6xzhzcPFIaL3Q1EbI2l+nu17q2aLJJLo4ZYg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
 
     <div class="container-fluid">
         <!-- Header with images-->
-        <div class="row">
+        <div class="row" id="header">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-3 my-auto">
                         <img src="imgs/doNotOperate.png" width="150" height="100">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 my-auto">
                         <h1 class="text-center">
                             Isolation Selector Tool
                             </h3>
@@ -50,61 +50,60 @@
 
 
         <div id="inputSection" class="row"> <!-- Input section-->
-
             <!-- System Properties form-->
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <h3>
                     System Properties
                 </h3>
-
-                <form role="form" id="systemProperties" novalidate>
+                <form role="form" id="systemProperties">
                     <div class="form-group">
 
                         <label for="isoTitle">
                             What is being isolated and why?
                         </label>
-                        <input type="text" class="form-control" id="isoTitle" required />
+                        <input type="text" class="form-control" id="isoTitle" name="isoTitle" required />
                     </div>
-
                     <p></p>
 
 
                     <div class="form-group">
-
                         <h4>What is the purpose of the isolation?</h4>
                         <a href="#" data-toggle="tooltip" title="Breaking of Containment">
-                            <input type="radio" name="purpose" id="boc" class="input-hidden" value="boc" />
+                            <input type="radio" name="purpose" id="boc" class="input-hidden" value="boc"
+                                onchange="showStuff(this);" />
                             <label for="boc">
                                 <img src="imgs/boc.png" alt="Breaking of Containment" />
+
                             </label>
                         </a>
 
                         <a href="#" data-toggle="tooltip" title="To prevent motion in equipment for non-invasive work">
-                            <input type="radio" name="purpose" id="motion" class="input-hidden" value="motion" />
+                            <input type="radio" name="purpose" id="motion" class="input-hidden" value="motion"
+                                onchange="hideStuff(this);" />
                             <label for="motion">
                                 <img src="imgs/rotating.png" alt="Rotating Equipment" />
                             </label>
                         </a>
 
                         <a href="#" data-toggle="tooltip" title="Confined Space Entry">
-                            <input type="radio" name="purpose" id="cse" class="input-hidden" value="cse" />
+                            <input type="radio" name="purpose" id="cse" class="input-hidden" value="cse"
+                                onchange="hideStuff(this);" />
                             <label for="cse">
                                 <img src="imgs/cse.png" alt="Confined Space Entry" />
                             </label>
                         </a>
 
                         <a href="#" data-toggle="tooltip" title="Small Bore Tubing of 1/2 inch or less">
-                            <input type="radio" name="purpose" id="sbt" class="input-hidden" value="sbt" />
+                            <input type="radio" name="purpose" id="sbt" class="input-hidden" value="sbt"
+                                onchange="showStuff(this);" />
                             <label for="sbt">
                                 <img src="imgs/SBT.png" alt="Small Bore Tubing" />
                             </label>
                         </a>
-
                     </div>
 
                     <p></p>
-                    <div class="form-group">
-
+                    <div class="form-group" id="subHide">
                         <h4>What is the substance?</h4>
                         <a href="#" data-toggle="tooltip" title="Flammable liquid or gas">
                             <input type="radio" name="substance" id="flammable" class="input-hidden"
@@ -126,29 +125,40 @@
                                 <img src="imgs/nonHaz.png" alt="Non-hazardous" />
                             </label>
                         </a>
-
                     </div>
+
                     <br>
-                    <div class="form-group">
+                    <div class="form-group" id="durHide">
                         <label for="period">How long will containment be broken for:</label>
-                        <select id="period" name="period" size="1" class="inputField">
+                        <select id="period" name="period" size="1" class="inputField" value="">
+                            <option hidden disabled selected value> Select duration </option>
                             <option value="oneOrLess">One shift or less</option>
                             <option value="upToWeek">More than a shift but less than a week</option>
                             <option value="moreWeek">More than one week</option>
                         </select>
                     </div>
 
-
                     <br>
-                    <div class="form-group">
+                    <div class="form-group" id="boundHide">
                         <div class="form-check form-switch">
-                            <input type="checkbox" class="form-check-input" id="boundary" />
+                            <input type="checkbox" class="form-check-input" name="boundary" id="boundary" />
                             <label for="boundary" class="form-check-label">Is this within a boundary isolation?</label>
                         </div>
                     </div>
-                    <br>
+
+                    <p></p>
                     <div class="form-group">
-                        <!--
+                        <div class="input-append">
+                            <label for="iccNo" class="form-label">Enter the ICC number if known:</label>
+                            <input id="iccNo" type="number" class="span2" min="300000" max="1000000">
+                            <span class="add-on"> Optional</span>
+                        </div>
+                    </div>
+
+
+                    <!-- This section will be used to select a number of lines to be checked in a single isolation
+                    <div class="form-group">
+                        
                         <label for="numOfLines" class="form-check-label">How many lines are being isolated. ie Suction
                             and Dischage</label>
                         <select name="numOfLines" id="numOfLines" class="form-select-sm ">
@@ -159,115 +169,139 @@
                             <option>5</option>
                         </select>
                     -->
+                    <!-- Next button is here which then shows the line spec section -->
 
-                        <button type="button" class="btn btn-outline-primary" onclick="showSpec()"
-                            id="nextBtn">Next</button>
+                    <div class="row">
+                        <div class="col-2">
+                        <button type="button" class="btn btn-outline-primary block" onclick="return popitup('help.html')"
+                            type="button">Help </button>
+                            </div>
+                    
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-primary block" onclick="showSpec()" id="nextBtn"
+                            type="submit">Next
+                        </button>
                     </div>
-
-
-
-
-                </form>
-
-
-
             </div>
-
-            <!-- Line specifications-->
-            <div class="col-md-6" id="lineSpecificationDiv" style="display:none;">
-                <h3>
-                    Line specification
-                </h3>
-                <form role="form" id="spec">
-
-                    <div class="form-group">
-
-
-                        <label for="lineDesc" class="form-label">Enter description of the line:</label>
-                        <input id="lineDesc" type="text" class="inputField">
-                    </div>
-                    <div class="form-group">
-                        <div class="input-append">
-                            <label for="pipeSizeNum" class="form-label">Enter the pipesize:</label>
-                            <input id="pipeSizeNum" type="number" class="span2" min="0" max="40">
-
-
-                            <span class="add-on">inches</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="input-append">
-                            <label for="pressure">What is the maximum pressure that can be expected: </label>
-                            <input id="pressure" type="number" min="0" max="500" class="span2">
-                            <span class="add-on">Bar</span>
-                        </div>
-                    </div>
-                    <br>
-
-
-
-                    <h3 class="card-header">
-                        What is the highest standard of isolation that can be reasonably applied?
-                    </h3>
-                    <div>
-
-                        <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />
-                        <label for="spade">
-                            <img src="imgs/spade.png" alt="Spade or physical" style="width: 300px; height: 125px" />
-                            Spade or disconnection
-                        </label>
-
-                    </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="dbb" class="input-hidden" value="dbb" />
-                        <label for="dbb">
-                            <img src="imgs/dbb.png" alt="Double block and bleed" style="width: 300px; height: 125px" />
-                            Proven double block and bleed
-                        </label>
-                    </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="sbb" class="input-hidden" value="sbb" />
-                        <label for="sbb">
-                            <img src="imgs/sbb.png" alt="Single block and bleed" style="width: 300px; height: 125px" />
-                            Proven single valve
-                        </label>
-                    </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="single" class="input-hidden" value="single" />
-                        <label for="single">
-                            <img src="imgs/single.png" alt="Single unproved" style="width: 300px; height: 125px" />
-                            Unproven single or double valve
-                        </label>
-                    </div>
-
-
-                </form>
-
-            </div>
+            </form>
         </div>
 
-        <button type="button" class="btn btn-outline-primary" onclick="getInputData()" style="display:none;"
-            id="calcBtn">Calculate</button>
 
-        <button type="button" class="btn btn-outline-primary" onclick="goBack()" style="display:none;"
-            id="backBtn">Return to input data</button>
+        <!-- Line specifications-->
+        <div class="col-lg-6" id="lineSpecificationDiv" style="display:none;">
+            <!--<h3 id="specNo"></h3> Not used at present gets a bit complicated. 
+                If there is only 1 line then this will be disabled
+                If line number is 1 then back will be disabled
+                If line number is Max then then FWD will be disabled
+                <button type="button" class="btn btn-primary" onclick="backLine()">Back</button>
+                <button type="button" class="btn btn-primary" onclick="nextLine()">Next</button>
+                <When the button is pressed then it will save everything entered so far into the matrix.
+            -->
+
+
+            <form role="form" id="spec">
+                <br style="height: 20px;">
+
+                <div class="form-group" id="lineHide">
+                    <label for="lineDesc" class="form-label" style="padding-top:9px">Enter description of the
+                        line:</label>
+                    <input id="lineDesc" type="text" class="form-control" style="font-size:16px; padding-top:7px"
+                        required>
+                    <p></p>
+                </div>
+
+                <div class="form-group" id="pipeHide">
+                    <div class="input-append">
+                        <label for="pipeSizeNum" class="form-label">Enter the pipesize:</label>
+                        <input id="pipeSizeNum" type="number" class="span2" min="0" max="40">
+                        <span class="add-on">inches</span>
+                    </div>
+                </div>
+
+                <div class="form-group" id="pressHide">
+                    <div class="input-append">
+                        <label for="pressure">What is the maximum pressure that can be expected: </label>
+                        <input id="pressure" type="number" min="0" max="500" class="span2">
+                        <span class="add-on">Bar</span>
+                    </div>
+                </div>
+                <br>
+
+                <h4>
+                    What is the highest standard of isolation that can be reasonably applied?
+                </h4>
+                <div>
+
+                    <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />
+                    <label for="spade">
+                        <img src="imgs/spade.png" alt="Spade or physical" style="width: 300px; height: 110px" />
+                        Spade or disconnection
+                    </label>
+
+                </div>
+                <div>
+                    <input type="radio" name="isoTypeSelected" id="dbb" class="input-hidden" value="dbb" />
+                    <label for="dbb">
+                        <img src="imgs/dbb.png" alt="Double block and bleed" style="width: 300px; height: 110px" />
+                        Proven double block and bleed
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="isoTypeSelected" id="sbb" class="input-hidden" value="sbb" />
+                    <label for="sbb">
+                        <img src="imgs/sbb.png" alt="Single block and bleed" style="width: 300px; height: 110px" />
+                        Proven single valve
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="isoTypeSelected" id="single" class="input-hidden" value="single" />
+                    <label for="single">
+                        <img src="imgs/single.png" alt="Single unproved" style="width: 300px; height: 110px" />
+                        Unproven single or double valve
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-10">
+                <button type="button" class="btn btn-outline-primary block text-center" onclick="getInputData()"
+                    style="display:none;" id="calcBtn" type="sub">Calculate
+                </button>
+            </div>
+
+            <button type="button" class="btn btn-outline-primary block" onclick="goBack()" style="display:none;"
+                id="backBtn">Return to input data
+            </button>
+        </div>
+    </div>
 
 
 
-        <!-- Output Section-->
-        <div class="card" style="display:none;" id="outCard">
+    <!-- Output Section-->
 
-            <h3 class="card-header">
-                Isolation Selector Tool Outcome
-            </h3>
-            <h4>TAQA's Safety Rule No 3: Ensure energy is isolated prior to working on plant or equipment.</h4>
+    <div class="container">
+        <div class="card border border-primary rounded" style="display:none;" id="outCard">
+            <div class="row">
+                <div class="col-2 my-auto">
+                    <img src="imgs/doNotOperate.png" width="150" height="100">
+                </div>
+                <div class="col my-auto inline">
+                    <h2 class="text-center">
+                        Isolation Selector Tool Outcome
+                    </h2>
+                </div>
+            </div>
+
             <div class="card-body">
                 <p class="card-text">
 
                 <div class="row">
                     <div class="col-md-6">
-                        <table class="table" style="border: 1px dashed rgb(66, 133, 244);">
+                        <table class="table rounded-2 border border-primary">
                             <thead>
                                 <tr> </tr>
                             </thead>
@@ -286,22 +320,27 @@
                                     <td id="outSub"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">How long will containment will be broken for:</th>
+                                    <th scope="row">Containment broken duration:</th>
                                     <td id="outDur"></td>
                                 </tr>
+                                <tr>
+                                    <th scope="row">Within a boundary isolation:</th>
+                                    <td id="outBound"></td>
+                                </tr>
+
                             </tbody>
                         </table>
 
                     </div>
                     <div class="col-md-6">
-                        <table class="table" style="border: 1px dashed rgb(66, 133, 244);">
+                        <table class="table rounded-2 border border-primary">
                             <tbody>
                                 <tr>
                                     <th scope="row">Line description:</th>
                                     <td id="outLineDesc"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">Maximum expected pressure:</th>
+                                    <th scope="row">Max expected pressure:</th>
                                     <td id="outBar"></td>
                                 </tr>
                                 <tr>
@@ -320,32 +359,33 @@
                 </div>
                 </p>
 
-                <div class="row"> <!-- This section gives the output icon and a message next to it-->
-                    <div class="col-md-3">
-                        <img id=outImg src="" alt="" height="100px" width="100px">
-                    </div>
-                    <div class="col-md-9">
-                        <p id="isoOutcome"></p>
-                    </div>
-
-                </div>
-                <!-- For testing only
-            <P>Total Score is</P>
-            <p id="totalScore"></p>
-            -->
-                <br>
-                <h4>The minium required level for this isolation is:</h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <img id=outIsoImg src="" alt="" height="125px" width="300px">
+                        <style>
+                            h4 {
+                                text-align: left;
+                            }
+                        </style>
+
+                        <h4>The minimum required level for this isolation is:</h4>
+                        <img id=outIsoImg src="" alt="" height="100px" width="240px">
+                        <p id="outIsoText"></p>
                     </div>
                     <div class="col-md-6">
-                        <p id="outIsoText"></p>
+                        <h4>The isolation that you selected is:</h4>
+                        <img id=outSelIsoImg src="" alt="" height="100px" width="240px">
+                        <p id="outIsoSelText"></p>
                     </div>
                 </div>
 
-
-
+                <div class="row"> <!-- This section gives the output icon and a message next to it-->
+                    <div class="col-2">
+                        <img id=outImg src="" alt="" height="95px" width="95px">
+                    </div>
+                    <div class="col-9 my-auto">
+                        <p id="isoOutcome"></p>
+                    </div>
+                </div>
 
             </div>
             <div class="card-footer">
@@ -364,26 +404,14 @@
                     <li id="prepControl3"></li>
                     <li id="prepControl4"></li>
                 </ul>
-
-
             </div>
-
-
-
-
+            <p id="preparedBy" class="text-center"></p>
         </div>
 
-
-
-
-
-
-        <button type="button" class="btn btn-outline-primary" onclick="printPDF()" id="printBtn"
+        <button type="button" class="btn btn-outline-primary block" onclick="printPDF()" id="printBtn"
             style="display:none;">Save
             as PDF</button>
-
     </div>
-
 </body>
 
 </html>

@@ -269,7 +269,7 @@ function goBack() {
     document.getElementById('header').style.display       = 'block';
 }
 
-function printPDF() {
+async function printPDF() {
     let filename = document.getElementById('iccNo').value;
     filename = filename ? `ICC ${filename} IST_Outcome.pdf` : 'IST_Outcome.pdf';
 
@@ -282,13 +282,30 @@ function printPDF() {
     const element = document.getElementById('outCard');
     element.classList.add('pdf-render');
 
-    html2pdf(element, {
-        margin: 10,
-        filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, width: 794 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).then(() => element.classList.remove('pdf-render'));
+    try {
+        const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+        const margin = 10;
+        const maxW = 210 - margin * 2;  // A4 width minus equal left/right margins
+        const maxH = 297 - margin * 2;  // A4 height minus equal top/bottom margins
+
+        // Scale canvas to fit within the A4 content area, preserving aspect ratio
+        const canvasRatio = canvas.height / canvas.width;
+        let imgW = maxW;
+        let imgH = imgW * canvasRatio;
+        if (imgH > maxH) {
+            imgH = maxH;
+            imgW = imgH / canvasRatio;
+        }
+
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, imgW, imgH);
+        pdf.save(filename);
+    } finally {
+        element.classList.remove('pdf-render');
+    }
 }
 
 function popitup(url) {

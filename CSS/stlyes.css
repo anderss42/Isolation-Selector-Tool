@@ -89,17 +89,16 @@ li {
   color: black;
 }
 .table td, .table th {
-  padding-top:0;
-  padding-bottom:0;
-  padding-left:2;
-  padding-right:2;
-  border-radius: 2;
-  ;}
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 2px;
+}
 
   .span2{
-    padding-bottom:3;
-    padding-top:10;
-    
+    padding-bottom: 3px;
+    padding-top: 10px;
   }
 
 
@@ -126,5 +125,11 @@ li {
 
   #lineDesc{
     padding-top: 0px;
-
   }
+
+/* Applied to #outCard just before PDF generation to ensure it fills A4 */
+.pdf-render {
+  min-height: 277mm;
+  width: 100%;
+  box-sizing: border-box;
+}

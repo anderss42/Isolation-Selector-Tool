@@ -7,23 +7,15 @@
     <title>Isolation Selector Tool</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <script src="JS/main.js"></script>
+    <script defer src="JS/main.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-        crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"
-        integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="CSS/stlyes.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js"
         integrity="sha512-w3u9q/DeneCSwUDjhiMNibTRh/1i/gScBVp2imNVAMCt6cUHIw6xzhzcPFIaL3Q1EbI2l+nu17q2aLJJLo4ZYg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -69,8 +61,7 @@
                     <div class="form-group">
                         <h4>What is the purpose of the isolation?</h4>
                         <a href="#" data-toggle="tooltip" title="Breaking of Containment">
-                            <input type="radio" name="purpose" id="boc" class="input-hidden" value="boc"
-                                onchange="showStuff(this);" />
+                            <input type="radio" name="purpose" id="boc" class="input-hidden" value="boc" />
                             <label for="boc">
                                 <img src="imgs/boc.png" alt="Breaking of Containment" />
 
@@ -78,24 +69,21 @@
                         </a>
 
                         <a href="#" data-toggle="tooltip" title="To prevent motion in equipment for non-invasive work">
-                            <input type="radio" name="purpose" id="motion" class="input-hidden" value="motion"
-                                onchange="hideStuff(this);" />
+                            <input type="radio" name="purpose" id="motion" class="input-hidden" value="motion" />
                             <label for="motion">
                                 <img src="imgs/rotating.png" alt="Rotating Equipment" />
                             </label>
                         </a>
 
                         <a href="#" data-toggle="tooltip" title="Confined Space Entry">
-                            <input type="radio" name="purpose" id="cse" class="input-hidden" value="cse"
-                                onchange="hideStuff(this);" />
+                            <input type="radio" name="purpose" id="cse" class="input-hidden" value="cse" />
                             <label for="cse">
                                 <img src="imgs/cse.png" alt="Confined Space Entry" />
                             </label>
                         </a>
 
                         <a href="#" data-toggle="tooltip" title="Small Bore Tubing of 1/2 inch or less">
-                            <input type="radio" name="purpose" id="sbt" class="input-hidden" value="sbt"
-                                onchange="showStuff(this);" />
+                            <input type="radio" name="purpose" id="sbt" class="input-hidden" value="sbt" />
                             <label for="sbt">
                                 <img src="imgs/SBT.png" alt="Small Bore Tubing" />
                             </label>
@@ -173,14 +161,11 @@
 
                     <div class="row">
                         <div class="col-2">
-                        <button type="button" class="btn btn-outline-primary block" onclick="return popitup('help.html')"
-                            type="button">Help </button>
+                        <button type="button" class="btn btn-outline-primary block" id="helpBtn">Help</button>
                             </div>
                     
                     <div class="col-4">
-                        <button type="button" class="btn btn-outline-primary block" onclick="showSpec()" id="nextBtn"
-                            type="submit">Next
-                        </button>
+                        <button type="button" class="btn btn-outline-primary block" id="nextBtn">Next</button>
                     </div>
             </div>
             </form>
@@ -268,12 +253,12 @@
     <div class="container">
         <div class="row">
             <div class="col-10">
-                <button type="button" class="btn btn-outline-primary block text-center" onclick="getInputData()"
-                    style="display:none;" id="calcBtn" type="sub">Calculate
+                <button type="button" class="btn btn-outline-primary block text-center"
+                    style="display:none;" id="calcBtn">Calculate
                 </button>
             </div>
 
-            <button type="button" class="btn btn-outline-primary block" onclick="goBack()" style="display:none;"
+            <button type="button" class="btn btn-outline-primary block" style="display:none;"
                 id="backBtn">Return to input data
             </button>
         </div>
@@ -361,18 +346,12 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <style>
-                            h4 {
-                                text-align: left;
-                            }
-                        </style>
-
-                        <h4>The minimum required level for this isolation is:</h4>
+                        <h4 class="text-start">The minimum required level for this isolation is:</h4>
                         <img id=outIsoImg src="" alt="" height="100px" width="240px">
                         <p id="outIsoText"></p>
                     </div>
                     <div class="col-md-6">
-                        <h4>The isolation that you selected is:</h4>
+                        <h4 class="text-start">The isolation that you selected is:</h4>
                         <img id=outSelIsoImg src="" alt="" height="100px" width="240px">
                         <p id="outIsoSelText"></p>
                     </div>
@@ -408,9 +387,8 @@
             <p id="preparedBy" class="text-center"></p>
         </div>
 
-        <button type="button" class="btn btn-outline-primary block" onclick="printPDF()" id="printBtn"
-            style="display:none;">Save
-            as PDF</button>
+        <button type="button" class="btn btn-outline-primary block" id="printBtn"
+            style="display:none;">Save as PDF</button>
     </div>
 </body>
 

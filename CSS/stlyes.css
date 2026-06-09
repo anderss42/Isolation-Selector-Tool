@@ -88,11 +88,23 @@ li {
   font-weight: normal;
   color: black;
 }
-/* Make table-bordered cell borders match the primary blue outer border */
-#outCard .table-bordered,
-#outCard .table-bordered td,
-#outCard .table-bordered th {
-  border-color: #0d6efd;
+.out-table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  border: 2px solid #0d6efd;
+}
+
+.out-table td,
+.out-table th {
+  border: 1px solid #0d6efd;
+  padding: 4px 8px;
+  vertical-align: top;
+}
+
+.out-table th {
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .table td, .table th {
@@ -100,7 +112,6 @@ li {
   padding-bottom: 0;
   padding-left: 2px;
   padding-right: 2px;
-  border-radius: 2px;
 }
 
   .span2{

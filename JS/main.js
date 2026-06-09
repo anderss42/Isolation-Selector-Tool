@@ -69,10 +69,10 @@ function getReleaseScore(pipeSize, pressure) {
 }
 
 function getMinimumIsolation(totalScore) {
-    if      (totalScore >= ISO_THRESHOLDS.spade) return { img: 'imgs/spade.png', text: 'Positive isolation - Spade or disconnection' };
-    else if (totalScore >= ISO_THRESHOLDS.dbb)   return { img: 'imgs/dbb.png',   text: 'Proven isolation - Double Block and Bleed (DBB) or double seal valve with body bleed.' };
-    else if (totalScore >= ISO_THRESHOLDS.sbb)   return { img: 'imgs/sbb.png',   text: 'Proven isolation - Leak tight Single Block and Bleed (SBB).' };
-    else                                          return { img: 'imgs/single.png', text: 'Non-proven isolation - Single or double valve - Double valve should be used rather than single, if available.' };
+    if      (totalScore > ISO_THRESHOLDS.spade) return { img: 'imgs/spade.png', text: 'Positive isolation - Spade or disconnection' };
+    else if (totalScore > ISO_THRESHOLDS.dbb)   return { img: 'imgs/dbb.png',   text: 'Proven isolation - Double Block and Bleed (DBB) or double seal valve with body bleed.' };
+    else if (totalScore > ISO_THRESHOLDS.sbb)   return { img: 'imgs/sbb.png',   text: 'Proven isolation - Leak tight Single Block and Bleed (SBB).' };
+    else                                         return { img: 'imgs/single.png', text: 'Non-proven isolation - Single or double valve - Double valve should be used rather than single, if available.' };
 }
 
 function getSelectedIso() {
@@ -213,7 +213,7 @@ function getInputData() {
 
     const selIso  = getSelectedIso();
     const required = getMinimumIsolation(totalScore);
-    const meets    = selIso.score > totalScore;
+    const meets    = selIso.score >= totalScore;
 
     // Populate output — textContent used throughout to prevent XSS
     document.getElementById('outTitle').textContent    = document.getElementById('isoTitle').value;
@@ -314,6 +314,7 @@ function popitup(url) {
 }
 
 function init() {
+    updateFieldVisibility();  // set initial state — no purpose selected yet
     document.querySelectorAll('input[name="purpose"]').forEach(radio => {
         radio.addEventListener('change', updateFieldVisibility);
     });

@@ -1,0 +1,25 @@
+{
+  "name": "ist-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anderss42/Isolation-Selector-Tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anderss42/Isolation-Selector-Tool/issues"
+  },
+  "homepage": "https://github.com/anderss42/Isolation-Selector-Tool#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  }
+}

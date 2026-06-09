@@ -88,6 +88,13 @@ li {
   font-weight: normal;
   color: black;
 }
+/* Make table-bordered cell borders match the primary blue outer border */
+#outCard .table-bordered,
+#outCard .table-bordered td,
+#outCard .table-bordered th {
+  border-color: #0d6efd;
+}
+
 .table td, .table th {
   padding-top: 0;
   padding-bottom: 0;

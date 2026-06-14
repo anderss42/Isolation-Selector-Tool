@@ -47,128 +47,145 @@
                     System Properties
                 </h3>
                 <form role="form" id="systemProperties">
+                    <!-- Step 1 — always visible -->
                     <div class="form-group">
-
                         <label for="isoTitle">
                             What is being isolated and why?
                         </label>
                         <input type="text" class="form-control" id="isoTitle" name="isoTitle" required />
                     </div>
-                    <p></p>
 
+                    <!-- Step 2 — front-end planning checks, revealed once a title is entered -->
+                    <div id="gatingBlock" style="display:none;">
+                        <p></p>
+                        <div class="form-group">
+                            <h4>Front-end planning checks</h4>
 
-                    <div class="form-group">
-                        <h4>What is the purpose of the isolation?</h4>
-                        <a href="#" data-toggle="tooltip" title="Breaking of Containment">
-                            <input type="radio" name="purpose" id="boc" class="input-hidden" value="boc" />
-                            <label for="boc">
-                                <img src="imgs/boc.png" alt="Breaking of Containment" />
+                            <p class="mb-1">Could a failure of this isolation lead to a major accident event?</p>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="majorAccident" id="majorAccidentYes"
+                                    value="yes" />
+                                <label for="majorAccidentYes" class="form-check-label">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="majorAccident" id="majorAccidentNo"
+                                    value="no" />
+                                <label for="majorAccidentNo" class="form-check-label">No</label>
+                            </div>
 
-                            </label>
-                        </a>
-
-                        <a href="#" data-toggle="tooltip" title="To prevent motion in equipment for non-invasive work">
-                            <input type="radio" name="purpose" id="motion" class="input-hidden" value="motion" />
-                            <label for="motion">
-                                <img src="imgs/rotating.png" alt="Rotating Equipment" />
-                            </label>
-                        </a>
-
-                        <a href="#" data-toggle="tooltip" title="Confined Space Entry">
-                            <input type="radio" name="purpose" id="cse" class="input-hidden" value="cse" />
-                            <label for="cse">
-                                <img src="imgs/cse.png" alt="Confined Space Entry" />
-                            </label>
-                        </a>
-
-                        <a href="#" data-toggle="tooltip" title="Small Bore Tubing of 1/2 inch or less">
-                            <input type="radio" name="purpose" id="sbt" class="input-hidden" value="sbt" />
-                            <label for="sbt">
-                                <img src="imgs/SBT.png" alt="Small Bore Tubing" />
-                            </label>
-                        </a>
+                            <p class="mb-1" style="margin-top:10px;">Is it reasonably practicable to wait for / carry out
+                                a shutdown for this work?</p>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="waitShutdown" id="waitShutdownYes"
+                                    value="yes" />
+                                <label for="waitShutdownYes" class="form-check-label">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="waitShutdown" id="waitShutdownNo"
+                                    value="no" />
+                                <label for="waitShutdownNo" class="form-check-label">No</label>
+                            </div>
+                        </div>
+                        <p id="gatingNotice"
+                            style="display:none; color:red; font-weight:bold;">
+                            A shutdown is required for this work — isolation selection is not appropriate. Press Next to
+                            record this outcome.
+                        </p>
                     </div>
 
-                    <p></p>
-                    <div class="form-group" id="subHide">
-                        <h4>What is the substance?</h4>
-                        <a href="#" data-toggle="tooltip" title="Flammable liquid or gas">
-                            <input type="radio" name="substance" id="flammable" class="input-hidden"
-                                value="flammable" />
-                            <label for="flammable">
-                                <img src="imgs/flammable.png" alt="Flammbale" />
-                            </label>
-                        </a>
-                        <a href="#" data-toggle="tooltip" title="Toxic or Hazardous substance">
-                            <input type="radio" name="substance" id="haz" class="input-hidden" value="haz" />
-                            <label for="haz">
-                                <img src="imgs/toxic.png" alt="Toxic" />
-                            </label>
-                        </a>
+                    <!-- Step 3 — the rest, revealed once both planning checks are answered "No" -->
+                    <div id="restBlock" style="display:none;">
+                        <p></p>
+                        <div class="form-group">
+                            <label for="fluidSelect" class="form-label">What is the fluid being isolated?</label>
+                            <select id="fluidSelect" name="fluidSelect" class="form-select">
+                                <option hidden disabled selected value="">Select fluid</option>
+                                <!-- options injected by JS, grouped by fluid group, plus "Other" -->
+                            </select>
+                            <div id="otherFluidWrap" style="display:none; margin-top:8px;">
+                                <input id="otherFluidName" type="text" class="form-control"
+                                    placeholder="Enter substance name" style="margin-bottom:6px;" />
+                                <label for="otherFluidGroup" class="form-label">Select its fluid group:</label>
+                                <select id="otherFluidGroup" class="form-select">
+                                    <option value="1">Group 1 — Highly Dangerous</option>
+                                    <option value="2">Group 2 — Dangerous</option>
+                                    <option value="3">Group 3 — Hazardous</option>
+                                    <option value="4">Group 4 — Non-hazardous</option>
+                                </select>
+                            </div>
+                        </div>
 
-                        <a href="#" data-toggle="tooltip" title="Non-Hazardous substance">
-                            <input type="radio" name="substance" id="nonHaz" class="input-hidden" value="nonHaz" />
-                            <label for="nonHaz">
-                                <img src="imgs/nonHaz.png" alt="Non-hazardous" />
-                            </label>
-                        </a>
-                    </div>
+                        <p></p>
+                        <div class="form-group">
+                            <div class="input-append">
+                                <label for="operatingTemp" class="form-label">Operating temperature of the
+                                    medium:</label>
+                                <input id="operatingTemp" type="number" min="-100" max="500" step="1" class="span2" />
+                                <span class="add-on">°C</span>
+                            </div>
+                            <small class="text-muted">A high or low temperature can escalate the fluid group.</small>
+                        </div>
 
-                    <br>
-                    <div class="form-group" id="durHide">
-                        <label for="period">How long will containment be broken for:</label>
-                        <select id="period" name="period" size="1" class="inputField" value="">
-                            <option hidden disabled selected value> Select duration </option>
-                            <option value="oneOrLess">One shift or less</option>
-                            <option value="upToWeek">More than a shift but less than a week</option>
-                            <option value="moreWeek">More than one week</option>
-                        </select>
-                    </div>
+                        <br>
+                        <div class="form-group">
+                            <label for="period">How long will containment be broken for:</label>
+                            <select id="period" name="period" size="1" class="inputField" value="">
+                                <option hidden disabled selected value> Select duration </option>
+                                <option value="oneOrLess">One shift or less</option>
+                                <option value="moreThanShift">More than one shift</option>
+                            </select>
+                        </div>
 
-                    <br>
-                    <div class="form-group" id="boundHide">
-                        <div class="form-check form-switch">
-                            <input type="checkbox" class="form-check-input" name="boundary" id="boundary" />
-                            <label for="boundary" class="form-check-label">Is this within a boundary isolation?</label>
+                        <br>
+                        <div class="form-group">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="hotWork" />
+                                <label for="hotWork" class="form-check-label">Is hot work involved (spark potential or
+                                    naked flame, in the task or vicinity)?</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="cse" />
+                                <label for="cse" class="form-check-label">Is this for confined space entry?</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="flareVentDrains" />
+                                <label for="flareVentDrains" class="form-check-label">Is this a flare, LP vent or closed
+                                    drains system?</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="sbt" />
+                                <label for="sbt" class="form-check-label">Is this an instrument small-bore tubing (SBT)
+                                    personal isolation?</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" name="boundary" id="boundary" />
+                                <label for="boundary" class="form-check-label">Is this within a boundary
+                                    isolation?</label>
+                            </div>
+                        </div>
+
+                        <p></p>
+                        <div class="form-group">
+                            <div class="input-append">
+                                <label for="iccNo" class="form-label">Enter the ICC number if known:</label>
+                                <input id="iccNo" type="number" class="span2" min="300000" max="1000000">
+                                <span class="add-on"> Optional</span>
+                            </div>
                         </div>
                     </div>
-
-                    <p></p>
-                    <div class="form-group">
-                        <div class="input-append">
-                            <label for="iccNo" class="form-label">Enter the ICC number if known:</label>
-                            <input id="iccNo" type="number" class="span2" min="300000" max="1000000">
-                            <span class="add-on"> Optional</span>
-                        </div>
-                    </div>
-
-
-                    <!-- This section will be used to select a number of lines to be checked in a single isolation
-                    <div class="form-group">
-                        
-                        <label for="numOfLines" class="form-check-label">How many lines are being isolated. ie Suction
-                            and Dischage</label>
-                        <select name="numOfLines" id="numOfLines" class="form-select-sm ">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                        </select>
-                    -->
-                    <!-- Next button is here which then shows the line spec section -->
 
                     <div class="row">
                         <div class="col-2">
-                        <button type="button" class="btn btn-outline-primary block" id="helpBtn">Help</button>
-                            </div>
-                    
-                    <div class="col-4">
-                        <button type="button" class="btn btn-outline-primary block" id="nextBtn">Next</button>
+                            <button type="button" class="btn btn-outline-primary block" id="helpBtn">Help</button>
+                        </div>
+
+                        <div class="col-4">
+                            <button type="button" class="btn btn-outline-primary block" id="nextBtn"
+                                style="display:none;">Next</button>
+                        </div>
                     </div>
+                </form>
             </div>
-            </form>
-        </div>
 
 
         <!-- Line specifications-->
@@ -188,26 +205,10 @@
 
                 <div class="form-group" id="lineHide">
                     <label for="lineDesc" class="form-label" style="padding-top:9px">Enter description of the
-                        line:</label>
+                        line / isolation point:</label>
                     <input id="lineDesc" type="text" class="form-control" style="font-size:16px; padding-top:7px"
                         required>
                     <p></p>
-                </div>
-
-                <div class="form-group" id="pipeHide">
-                    <div class="input-append">
-                        <label for="pipeSizeNum" class="form-label">Enter the pipesize:</label>
-                        <input id="pipeSizeNum" type="number" class="span2" min="0" max="40">
-                        <span class="add-on">inches</span>
-                    </div>
-                </div>
-
-                <div class="form-group" id="pressHide">
-                    <div class="input-append">
-                        <label for="pressure">What is the maximum pressure that can be expected: </label>
-                        <input id="pressure" type="number" min="0" max="500" class="span2">
-                        <span class="add-on">Bar</span>
-                    </div>
                 </div>
                 <br>
 
@@ -292,21 +293,16 @@
                                     <td id="outTitle"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">Purpose of isolation:</th>
-                                    <td id="outPur"></td>
-                                </tr>
-
-                                <tr>
-                                    <th scope="row">Substance within isolated envelop:</th>
+                                    <th scope="row">Fluid / fluid group:</th>
                                     <td id="outSub"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Operating temperature:</th>
+                                    <td id="outTemp"></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Containment broken duration:</th>
                                     <td id="outDur"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Within a boundary isolation:</th>
-                                    <td id="outBound"></td>
                                 </tr>
 
                             </tbody>
@@ -321,12 +317,20 @@
                                     <td id="outLineDesc"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">Max expected pressure:</th>
-                                    <td id="outBar"></td>
+                                    <th scope="row">Hot work:</th>
+                                    <td id="outHotWork"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">Pipework Size:</th>
-                                    <td id="outPipe"></td>
+                                    <th scope="row">Confined space entry:</th>
+                                    <td id="outCSE"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Exemptions applied:</th>
+                                    <td id="outExempt"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Within a boundary isolation:</th>
+                                    <td id="outBound"></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Isolation Selected:</th>
@@ -340,6 +344,7 @@
                 </div>
                 </p>
 
+                <div id="comparisonSection">
                 <div class="row">
                     <div class="col-md-6">
                         <h4 class="text-start">The minimum required level for this isolation is:</h4>
@@ -352,6 +357,7 @@
                         <p id="outIsoSelText"></p>
                     </div>
                 </div>
+                </div> <!-- /comparisonSection -->
 
                 <div class="row"> <!-- This section gives the output icon and a message next to it-->
                     <div class="col-2">
@@ -359,11 +365,12 @@
                     </div>
                     <div class="col-9 my-auto">
                         <p id="isoOutcome"></p>
+                        <p id="authGuidance" style="color:red; font-weight:bold;"></p>
                     </div>
                 </div>
 
             </div>
-            <div class="card-footer">
+            <div class="card-footer" id="controlsFooter">
                 <ul> Isolation Controls required are:
                     <li id="listControl1"></li>
                     <li id="listControl2"></li>
@@ -385,6 +392,42 @@
 
         <button type="button" class="btn btn-outline-primary block" id="printBtn"
             style="display:none;">Save as PDF</button>
+    </div>
+
+    <!-- Alert / information modal (replaces browser alert) -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertModalTitle">Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="alertModalBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Name confirmation modal (replaces browser prompt) -->
+    <div class="modal fade" id="nameModal" tabindex="-1" aria-labelledby="nameModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nameModalTitle">Confirm and sign</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="nameModalBody"></p>
+                    <input type="text" class="form-control" id="nameModalInput" placeholder="Enter your name" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="nameModalConfirm">Confirm &amp; save PDF</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 

@@ -145,6 +145,20 @@ li {
     padding-top: 0px;
   }
 
+/* New input controls */
+#fluidSelect,
+#otherFluidGroup {
+  max-width: 420px;
+}
+
+#otherFluidWrap {
+  max-width: 420px;
+}
+
+.form-switch .form-check-label {
+  font-weight: normal;
+}
+
 /* Applied to #outCard just before PDF generation — overrides Bootstrap container centering */
 .pdf-render {
   width: 794px !important;

@@ -1,109 +1,112 @@
-// Independent expected-result model — deliberately NOT copied from the application code.
-// Based on the approved flowchart and scoring matrix.
+// Independent expected-result model for the HSG253 decision tree.
+// Deliberately re-derived from the requirements doc, not imported from the app.
 
-// Release potential matrix: row = pipe-size band, col = pressure band
-// Rows: [>=24, >=12, >=6, >1, <=1]   Cols: [>=150, >=100, >=50, >=20, >=10, <10]
-const RELEASE_MATRIX = [
-    [10, 10, 10,  9, 7, 6],
-    [10, 10,  9,  7, 6, 6],
-    [10,  9,  6,  6, 6, 6],
-    [10,  6,  6,  3, 2, 1],
-    [10,  4,  3,  3, 1, 1],
-];
+export const GROUP_NAMES = { 1: 'Highly Dangerous', 2: 'Dangerous', 3: 'Hazardous', 4: 'Non-hazardous' };
 
-function pressureCol(p) {
-    if (p >= 150) return 0;
-    if (p >= 100) return 1;
-    if (p >= 50)  return 2;
-    if (p >= 20)  return 3;
-    if (p >= 10)  return 4;
-    return 5;
-}
+// Base group per standard fluid (mirrors FLUIDS in the app).
+export const FLUID_GROUPS = {
+    'Natural Gas': 1, 'NGL': 1, 'Crude Oil': 1,
+    'Methanol': 2, 'CRW85733': 2, 'Proxel XL2': 2, 'GT-7511': 2, 'Corrtreat 15340': 2, 'Biotreat 4632': 2,
+    'Diesel': 3, 'Aviation Fuel': 3, 'MEG': 3, 'R410A': 3, 'Scaletreat 8019': 3, 'Phasetreat 13647': 3,
+    'CRW85689': 3, 'RBW85165': 3, 'HW 443 ND': 3, 'Brayco Micronic SV/3': 3, 'Foamtreat SOC313': 3,
+    'Seawater': 4, 'TEG': 4,
+};
 
-function pipeSizeRow(s) {
-    if (s >= 24) return 0;
-    if (s >= 12) return 1;
-    if (s >= 6)  return 2;
-    if (s > 1)   return 3;
+export function tempGroup(t) {
+    if (t > 60 || t < -10) return 1;
+    if ((t > 50 && t <= 60) || (t < 0 && t >= -10)) return 3;
     return 4;
 }
 
-export function releaseScore(pipeSize, pressure) {
-    return RELEASE_MATRIX[pipeSizeRow(pipeSize)][pressureCol(pressure)];
+export function finalGroup(baseGroup, temp) {
+    if (Number.isNaN(temp)) return baseGroup;
+    return Math.min(baseGroup, tempGroup(temp));
 }
 
-export function calcScore({ purpose, substance, period, pipeSize, pressure }) {
-    if (purpose === 'cse') return 900;
-    if (purpose === 'sbt' || purpose === 'motion') return 80;
-    const s = { flammable: 10, haz: 3, nonHaz: 1 }[substance];
-    const d = { oneOrLess: 3, upToWeek: 7, moreWeek: 10 }[period];
-    return s * d * releaseScore(pipeSize, pressure);
+export function requiredCategory({ cse, boundary, flareVentDrains, sbt, group, longDuration, hotWork }) {
+    if (cse)             return 'I';
+    if (boundary)        return 'III';
+    if (flareVentDrains) return 'III';
+    if (sbt)             return group <= 2 ? 'IIB' : 'III';
+    if (group <= 2)      return (longDuration || hotWork) ? 'I' : 'IIA';
+    if (group === 3)     return longDuration ? 'IIA' : 'IIB';
+    return longDuration ? 'IIB' : 'III';
 }
 
-export function minimumIsolation(score) {
-    if (score > 450) return 'spade';
-    if (score > 89)  return 'dbb';
-    if (score > 29)  return 'sbb';
-    return 'single';
+export const CATEGORY_RANK  = { I: 4, IIA: 3, IIB: 2, III: 1 };
+export const ISO_TO_CATEGORY = { spade: 'I', dbb: 'IIA', sbb: 'IIB', single: 'III' };
+export const CATEGORY_LABEL = { I: 'Category I', IIA: 'Category IIA', IIB: 'Category IIB', III: 'Category III' };
+export const CATEGORY_IMG   = { I: 'spade', IIA: 'dbb', IIB: 'sbb', III: 'single' };
+
+export function meets(selIso, requiredCat) {
+    return CATEGORY_RANK[ISO_TO_CATEGORY[selIso]] >= CATEGORY_RANK[requiredCat];
 }
 
-export const ISO_SCORES = { spade: 1000, dbb: 450, sbb: 89, single: 29 };
-
-export function isolationMeets(selIso, score) {
-    return ISO_SCORES[selIso] >= score;
+export function getAuthorisers(group, requiredCat) {
+    if (group <= 2) {
+        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA / Operations Manager' };
+        if (requiredCat === 'IIA') return { offshore: 'OIM', onshore: 'Process Engineer' };
+    } else {
+        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA / Operations Manager' };
+        if (requiredCat === 'IIA') return { offshore: 'Department Head', onshore: null };
+        if (requiredCat === 'IIB') return { offshore: 'Area Authority', onshore: null };
+    }
+    return null;
 }
-
-// --- Output text labels (must match application output exactly) ---
-
-export const ISOLATION_TEXT = {
-    spade:  'Positive isolation - Spade or disconnection',
-    dbb:    'Proven isolation - Double Block and Bleed (DBB) or double seal valve with body bleed.',
-    sbb:    'Proven isolation - Leak tight Single Block and Bleed (SBB).',
-    single: 'Non-proven isolation - Single or double valve - Double valve should be used rather than single, if available.',
-};
-
-export const SUBSTANCE_TEXT = {
-    flammable: 'Flammable or Toxic liquid or gas',
-    haz:       'Hazardous utilities or Chemicals',
-    nonHaz:    'Non-Hazardous Substances',
-};
-
-export const DURATION_TEXT = {
-    oneOrLess: 'Less than one shift',
-    upToWeek:  'More than one shift, less than one week',
-    moreWeek:  'More than one week',
-};
-
-export const PURPOSE_TEXT = {
-    boc:    'Breaking of Containment',
-    sbt:    'Small Bore Tubing 1/2 inch or less.',
-    motion: 'To prevent motion in equipment for non-invasive work',
-    cse:    'For confined space entry',
-};
-
-export const MEETS_TEXT     = 'The isolation selected meets the minimum standards required and can be used.';
-export const NOT_MEETS_TEXT = 'The isolation selected does not meet the minimum standard required. A Level 2 risk assessment MUST be carried out if this is to be used.';
 
 // --- Page interaction helpers ---
 
-export async function fillStage1(page, { title, purpose, substance, period, boundary = false, iccNo }) {
+// Fills the System Properties form (respecting the progressive reveal) and
+// clicks Next. Does NOT wait afterwards — the caller chooses whether to expect
+// stage 2 (selector) or a shutdown outcome.
+export async function fillStage1(page, opts) {
+    const {
+        title = 'Test isolation',
+        majorAccident = 'no', waitShutdown = 'no',
+        fluidLabel, otherName, otherGroup, temp, period,
+        hotWork, cse, flareVentDrains, sbt, boundary, iccNo,
+    } = opts;
+
     await page.goto('/');
     await page.fill('#isoTitle', title);
-    await page.locator(`label[for="${purpose}"]`).click();
-    if (substance) await page.locator(`label[for="${substance}"]`).click();
-    if (period)    await page.selectOption('#period', period);
-    if (boundary)  await page.check('#boundary');
-    if (iccNo)     await page.fill('#iccNo', String(iccNo));
+
+    // Step 2 — planning checks appear once the title is entered.
+    await page.locator('#gatingBlock').waitFor({ state: 'visible' });
+    await page.check(majorAccident === 'yes' ? '#majorAccidentYes' : '#majorAccidentNo');
+    await page.check(waitShutdown === 'yes' ? '#waitShutdownYes' : '#waitShutdownNo');
+
+    const defers = majorAccident === 'yes' || waitShutdown === 'yes';
+    if (!defers) {
+        // Step 3 — the rest appears once both checks are "No".
+        await page.locator('#restBlock').waitFor({ state: 'visible' });
+
+        if (fluidLabel)      await page.selectOption('#fluidSelect', { label: fluidLabel });
+        else if (otherGroup) {
+            await page.selectOption('#fluidSelect', 'other');
+            if (otherName) await page.fill('#otherFluidName', otherName);
+            await page.selectOption('#otherFluidGroup', String(otherGroup));
+        }
+
+        if (temp !== undefined) await page.fill('#operatingTemp', String(temp));
+        if (period)             await page.selectOption('#period', period);
+        if (hotWork)            await page.check('#hotWork');
+        if (cse)                await page.check('#cse');
+        if (flareVentDrains)    await page.check('#flareVentDrains');
+        if (sbt)                await page.check('#sbt');
+        if (boundary)           await page.check('#boundary');
+        if (iccNo)              await page.fill('#iccNo', String(iccNo));
+    }
+
     await page.click('#nextBtn');
-    // Wait for the calculation section to appear
+}
+
+export async function expectStage2(page) {
     await page.locator('#calcBtn').waitFor({ state: 'visible' });
 }
 
-export async function fillStage2AndCalculate(page, { lineDesc, pipeSize, pressure, selIso }) {
-    if (lineDesc  !== undefined) await page.fill('#lineDesc', lineDesc);
-    if (pipeSize  !== undefined) await page.fill('#pipeSizeNum', String(pipeSize));
-    if (pressure  !== undefined) await page.fill('#pressure', String(pressure));
-    if (selIso)                  await page.locator(`label[for="${selIso}"]`).click();
+export async function fillStage2AndCalculate(page, { lineDesc = 'Test line', selIso }) {
+    await page.fill('#lineDesc', lineDesc);
+    if (selIso) await page.locator(`label[for="${selIso}"]`).click();
     await page.click('#calcBtn');
     await page.locator('#outCard').waitFor({ state: 'visible' });
 }
@@ -113,20 +116,23 @@ export async function readOutput(page) {
         [1, 2, 3, 4, 5, 6].map(i => page.locator(`#listControl${i}`).textContent()),
     );
     return {
-        title:      (await page.locator('#outTitle').textContent()).trim(),
-        lineDesc:   (await page.locator('#outLineDesc').textContent()).trim(),
-        purpose:    (await page.locator('#outPur').textContent()).trim(),
-        substance:  (await page.locator('#outSub').textContent()).trim(),
-        duration:   (await page.locator('#outDur').textContent()).trim(),
-        boundary:   (await page.locator('#outBound').textContent()).trim(),
-        pipe:       (await page.locator('#outPipe').textContent()).trim(),
-        pressure:   (await page.locator('#outBar').textContent()).trim(),
-        isoSel:     (await page.locator('#outIsoSel').textContent()).trim(),
-        minReqText: (await page.locator('#outIsoText').textContent()).trim(),
-        minReqImg:  await page.locator('#outIsoImg').getAttribute('src'),
-        selIsoImg:  await page.locator('#outSelIsoImg').getAttribute('src'),
-        outcome:    (await page.locator('#isoOutcome').textContent()).trim(),
-        outImg:     await page.locator('#outImg').getAttribute('src'),
-        controls:   controls.map(t => t.trim()).filter(t => t !== ''),
+        title:       (await page.locator('#outTitle').textContent()).trim(),
+        fluid:       (await page.locator('#outSub').textContent()).trim(),
+        temp:        (await page.locator('#outTemp').textContent()).trim(),
+        duration:    (await page.locator('#outDur').textContent()).trim(),
+        lineDesc:    (await page.locator('#outLineDesc').textContent()).trim(),
+        hotWork:     (await page.locator('#outHotWork').textContent()).trim(),
+        cse:         (await page.locator('#outCSE').textContent()).trim(),
+        exempt:      (await page.locator('#outExempt').textContent()).trim(),
+        boundary:    (await page.locator('#outBound').textContent()).trim(),
+        isoSel:      (await page.locator('#outIsoSel').textContent()).trim(),
+        minReqText:  (await page.locator('#outIsoText').textContent()).trim(),
+        minReqImg:   await page.locator('#outIsoImg').getAttribute('src'),
+        selIsoText:  (await page.locator('#outIsoSelText').textContent()).trim(),
+        selIsoImg:   await page.locator('#outSelIsoImg').getAttribute('src'),
+        outcome:     (await page.locator('#isoOutcome').textContent()).trim(),
+        authGuidance:(await page.locator('#authGuidance').textContent()).trim(),
+        outImg:      await page.locator('#outImg').getAttribute('src'),
+        controls:    controls.map(t => t.trim()).filter(t => t !== ''),
     };
 }

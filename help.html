@@ -63,86 +63,123 @@
                     <th scope="row">1</th>
                     <td>What is being isolated and why?</td>
                     <td>This is a text entry box that should contain the equipment description and why it is being
-                        isolated. 
-                        Example: P14205-A Oil export pump isolated for mechanical seal change out. </td>
+                        isolated.
+                        Example: P14205-A Oil export pump isolated for mechanical seal change out.</td>
                 </tr>
-
                 <tr>
                     <th scope="row">2</th>
-                    <td>What is the purpose of the isolation?</td>
-                    <td>Options here are for Breaking of Containment, To prevent motion in equipment, Confined Space
-                        Entry and Breaking of containment of small bore tubing. Select the appropriate item by clicking
-                        on the icon.</td>
+                    <td>Front-end planning checks</td>
+                    <td>Two Yes/No questions, shown once a title is entered. If a failure of the isolation could lead to a
+                        major accident event, or if it is reasonably practicable to wait for a shutdown, then isolation
+                        selection is not appropriate — the tool will advise that the plant should be shut down for this
+                        work, and the rest of the form is not required.</td>
                 </tr>
                 <tr>
                     <th scope="row">3</th>
-                    <td>What is the substance?</td>
-                    <td>Options here are for Flammable or Toxic, Hazardous and Non-Hazardous, select the appropriate item by clicking on the icon.</td>
+                    <td>What is the fluid being isolated?</td>
+                    <td>Choose the fluid from the drop-down. Fluids are grouped into four GHS-based Fluid Groups
+                        (1 Highly Dangerous, 2 Dangerous, 3 Hazardous, 4 Non-hazardous). The tool infers the group from
+                        your selection. If the fluid is not listed, choose <em>Other</em>, type the substance name and
+                        select its group manually.</td>
                 </tr>
                 <tr>
                     <th scope="row">4</th>
-                    <td>How long will containment be broken for?</td>
-                    <td>This is not how long the total task will take, this is the length of time that pipework will be left open and exposed should there be a failure of the isolation. 
-                        Click on the drop down arrow and select the appropriate option. </td>
+                    <td>Operating temperature</td>
+                    <td>Enter the operating temperature of the medium in °C. Temperature can escalate the fluid group —
+                        for example a non-hazardous (Group 4) fluid running above 50 °C is treated as Group 3, and above
+                        60 °C (or below −10 °C) it is treated as Group 1. The tool always uses the more onerous of the
+                        fluid's base group and the temperature-derived group.</td>
                 </tr>
                 <tr>
                     <th scope="row">5</th>
-                    <td>Is this within a boundary isolation?</td>
-                    <td>By selecting this option you are confirming that a boundary isolation is already in place and therefore the expected pressure this isolation would be exposed to is 
-                        minimal. When selected the pressure will be set to zero in the line specifications.  </td>
+                    <td>How long will containment be broken for?</td>
+                    <td>This is not how long the total task will take; it is the length of time the pipework will be left
+                        open and exposed should the isolation fail. Choose <em>One shift or less</em> or <em>More than
+                        one shift</em>.</td>
                 </tr>
                 <tr>
                     <th scope="row">6</th>
-                    <td>Next Button</td>
-                    <td>Once all of the above information is entered press the Next button to display the line specification section. 
-                        If there is missing information from the above section you will not be able to carry on.   </td>
+                    <td>Hot work, CSE, exemptions and boundary switches</td>
+                    <td>Toggle these as applicable:
+                        <ul>
+                            <li><strong>Hot work</strong> — spark potential or naked flame, in the task or vicinity
+                                (escalates Fluid Groups 1 &amp; 2).</li>
+                            <li><strong>Confined space entry</strong> — forces a Category I (positive isolation)
+                                requirement.</li>
+                            <li><strong>Flare, LP vent or closed drains</strong> — exemption giving a Category III
+                                (single unproven valve on the LP side).</li>
+                            <li><strong>Instrument small-bore tubing (SBT)</strong> — exemption; Category IIB for Groups
+                                1 &amp; 2, Category III for Groups 3 &amp; 4.</li>
+                            <li><strong>Within a boundary isolation</strong> — single valve locally is sufficient
+                                (Category III) because a boundary isolation is already in place.</li>
+                        </ul>
+                    </td>
                 </tr>
-                            <tr>
+                <tr>
                     <th scope="row">7</th>
-                    <td>Enter a description  of the line being assessed.</td>
-                    <td>Enter a description  here of the particular line being assessed. So for example Suction pipework of export pump. Note that a new instance of the selector tool must be 
-                        carried out for each line going to equipment. So one for suction and one for discharge in this example. </td>
+                    <td>ICC number (optional)</td>
+                    <td>If known, enter the ICC number. It is used to name the saved PDF.</td>
                 </tr>
                 <tr>
                     <th scope="row">8</th>
-                    <td>Enter the pipesize in inches.</td>
-                    <td>Enter the diameter of the line being assessed. Note that if SBT has been selected this will default to 0.5. </td>
+                    <td>Next button</td>
+                    <td>Once the above is entered press Next to display the line specification section. If anything is
+                        missing you will be prompted and cannot continue.</td>
                 </tr>
                 <tr>
                     <th scope="row">9</th>
-                    <td>Enter the maximum pressure that can be expected.</td>
-                    <td>This is the pressure that could be expected under normal operating conditions. So in this example the relief valve pressure on the suction side of the pump is set at 
-                        10bar however under normal operating conditions the maximum pressure expected would be 4bar. Therefore 4 should be entered in this case.  </td>
+                    <td>Enter a description of the line / isolation point</td>
+                    <td>Describe the particular line or point being assessed, e.g. "Suction pipework of export pump". A
+                        separate assessment should be carried out for each isolation point — for example one for suction
+                        and one for discharge — especially where connected live systems carry different fluids.</td>
                 </tr>
                 <tr>
                     <th scope="row">10</th>
-                    <td>What is the highest level of isolation that could reasonably be applied?</td>
-                    <td>In this example a double block and bleed valve is available on the suction side of the pump. Therefore it is reasonably practiable to use the double block and bleed isolation. 
-                        Click on the appropriate icon to select the isolation you plan to use. </td>
+                    <td>Highest standard of isolation that can reasonably be applied</td>
+                    <td>Select the best isolation you can actually apply, assessing positive isolation (spade) first and
+                        then the best available valved isolation. Click the appropriate icon.</td>
                 </tr>
                 <tr>
                     <th scope="row">11</th>
-                    <td>Calculate button.</td>
-                    <td>Press this button once all information has been entered. Should anything be missing an alert popup will open showing what is missing. Everything must be filled in before the output screen is show.  </td>
+                    <td>Calculate button</td>
+                    <td>Press this once all information is entered. The tool determines the minimum required isolation
+                        category and compares it with the isolation you selected.</td>
                 </tr>
                 <tr>
                     <th scope="row">12</th>
                     <td>Output screen</td>
-                    <td>This will show all the information that has been entered and then a comparison  between the required isolation based on the information supplied and the selected isolation. If the selected isolation meets or 
-                        exceeds the required isolation it will inform you that the isolation can proceed without further risk assessment. If however the isolation selected does not meet the minimum standard then it will display a warning and inform you that a level 2 risk assessment must be carried out.  </td>
+                    <td>Shows the information entered, the minimum required isolation category (I, IIA, IIB or III) and
+                        the category your selected isolation provides. If your selection meets or exceeds the minimum it
+                        confirms the isolation can be used. If it does not, it displays a warning, states that a Level 2
+                        risk assessment / deviation is required, and shows who must authorise the deviation.</td>
                 </tr>
                 <tr>
                     <th scope="row">13</th>
-                    <td>Go Back button</td>
-                    <td>This will take you back to the input screen where changes can be made to the inputted data.</td>
+                    <td>Isolation categories</td>
+                    <td>
+                        <ul>
+                            <li><strong>I</strong> — Positive isolation: spade or disconnection.</li>
+                            <li><strong>IIA</strong> — Proven Double Block and Bleed (DBB) or double seal valve with body
+                                bleed.</li>
+                            <li><strong>IIB</strong> — Proven leak-tight Single Block and Bleed (SBB).</li>
+                            <li><strong>III</strong> — Non-proven single or double valve (double preferred if
+                                available).</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">14</th>
-                    <td>Save as PDF</td>
-                    <td>Shown below the output screen this will create a PDF file and automatically download it to your download folder. This can then renamed and attached to your isolation within TCOW.</td>
+                    <td>Return to input data button</td>
+                    <td>Takes you back to the input screen where changes can be made.</td>
                 </tr>
                 <tr>
                     <th scope="row">15</th>
+                    <td>Save as PDF</td>
+                    <td>Creates a PDF of the outcome and downloads it to your downloads folder. This can be attached to
+                        your isolation within TCOW.</td>
+                </tr>
+                <tr>
+                    <th scope="row">16</th>
                     <td>Finished</td>
                     <td>When finished with the selector tool simply close the window.</td>
                 </tr>

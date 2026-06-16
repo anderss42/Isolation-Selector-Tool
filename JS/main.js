@@ -83,15 +83,17 @@ function getRequiredCategory({ cse, boundary, flareVentDrains, sbt, group, longD
     return longDuration ? 'IIB' : 'III'; // group 4
 }
 
-// Authorisation approvers for a non-compliant deviation (slide 17). Both the
-// offshore and onshore approver are shown. OIM approval is not required for
-// non-hazardous (group 4) deviations (which never reach an OIM row anyway).
+// Authorisation approvers for a non-compliant deviation (slide 17). "Offshore" and
+// "onshore" describe where the approving person resides, not where the work is done
+// (all work is offshore). Some rows have an offshore approver only (onshore: null).
+// OIM approval is not required for non-hazardous (group 4) deviations (which never
+// reach an OIM row anyway).
 function getAuthorisers(group, requiredCat) {
     if (group <= 2) {
-        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA / Operations Manager' };
+        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA & Operations Manager' };
         if (requiredCat === 'IIA') return { offshore: 'OIM', onshore: 'Process Engineer' };
     } else { // groups 3 & 4
-        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA / Operations Manager' };
+        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA & Operations Manager' };
         if (requiredCat === 'IIA') return { offshore: 'Department Head', onshore: null };
         if (requiredCat === 'IIB') return { offshore: 'Area Authority', onshore: null };
     }
@@ -372,9 +374,9 @@ function getInputData() {
 
         const authorisers = getAuthorisers(group, requiredCat);
         if (authorisers) {
-            const onshore = authorisers.onshore || 'follow the site deviation process';
-            authEl.textContent =
-                `Authorisation for this deviation is required from: Offshore — ${authorisers.offshore}; Onshore — ${onshore}.`;
+            let who = `${authorisers.offshore} (offshore)`;
+            if (authorisers.onshore) who += ` and ${authorisers.onshore} (onshore)`;
+            authEl.textContent = `Authorisation for this deviation is required from: ${who}.`;
         } else {
             authEl.textContent = 'Authorisation for this deviation must be obtained through the site deviation process.';
         }
@@ -441,27 +443,19 @@ async function printPDF() {
 
         const pageW = 210, pageH = 297;
         const margin = 10;                  // equal margins on every side
-        const imgW = pageW - margin * 2;    // render at full content width (no squashing)
-        const imgH = imgW * (canvas.height / canvas.width);
-        const usableH = pageH - margin * 2; // content height available per page
+        const usableW = pageW - margin * 2; // content area available
+        const usableH = pageH - margin * 2;
 
-        // Render at full width, flowing across as many pages as needed.
-        let heightRendered = 0;
-        let pageIndex = 0;
-        while (heightRendered < imgH - 0.1) {
-            if (pageIndex > 0) pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', margin, margin - heightRendered, imgW, imgH);
-
-            // Mask the margins so any slice overlap doesn't bleed into them.
-            pdf.setFillColor(255, 255, 255);
-            pdf.rect(0, 0, pageW, margin, 'F');
-            pdf.rect(0, pageH - margin, pageW, margin, 'F');
-            pdf.rect(0, 0, margin, pageH, 'F');
-            pdf.rect(pageW - margin, 0, margin, pageH, 'F');
-
-            heightRendered += usableH;
-            pageIndex++;
+        // Fit the whole card onto a single A4 page: render at full content width,
+        // then scale down (keeping aspect ratio) if it would be taller than one page.
+        let imgW = usableW;
+        let imgH = imgW * (canvas.height / canvas.width);
+        if (imgH > usableH) {
+            imgH = usableH;
+            imgW = imgH * (canvas.width / canvas.height);
         }
+        const x = (pageW - imgW) / 2;       // centre horizontally if narrowed
+        pdf.addImage(imgData, 'JPEG', x, margin, imgW, imgH);
         pdf.save(filename);
     } finally {
         element.classList.remove('pdf-render');

@@ -42,12 +42,14 @@ export function meets(selIso, requiredCat) {
     return CATEGORY_RANK[ISO_TO_CATEGORY[selIso]] >= CATEGORY_RANK[requiredCat];
 }
 
+// Offshore/onshore describe where the approver resides, not where the work is done.
+// Some rows have an offshore approver only (onshore: null).
 export function getAuthorisers(group, requiredCat) {
     if (group <= 2) {
-        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA / Operations Manager' };
+        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA & Operations Manager' };
         if (requiredCat === 'IIA') return { offshore: 'OIM', onshore: 'Process Engineer' };
     } else {
-        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA / Operations Manager' };
+        if (requiredCat === 'I')   return { offshore: 'OIM', onshore: 'Process TA & Operations Manager' };
         if (requiredCat === 'IIA') return { offshore: 'Department Head', onshore: null };
         if (requiredCat === 'IIB') return { offshore: 'Area Authority', onshore: null };
     }

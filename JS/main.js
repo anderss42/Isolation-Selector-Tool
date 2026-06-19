@@ -18,7 +18,16 @@ const CATEGORY_INFO = {
 };
 
 // Best-available isolation the user selects → the category it satisfies
-const ISO_TO_CATEGORY = { spade: 'I', dbb: 'IIA', sbb: 'IIB', single: 'III' };
+const ISO_TO_CATEGORY = { spade: 'I', dbb: 'IIA', twin_seal: 'IIA', sbb: 'IIB', single: 'III' };
+
+// Per-selection display info (image and label shown on the "you selected" side of the output)
+const ISO_INFO = {
+    spade:     { label: 'Category I',   img: 'imgs/spade.png',     text: 'Positive isolation - Spade or disconnection.' },
+    dbb:       { label: 'Category IIA', img: 'imgs/dbb.png',       text: 'Proven isolation - Double Block and Bleed (DBB).' },
+    twin_seal: { label: 'Category IIA', img: 'imgs/twin_seal.png', text: 'Proven isolation - Twin Seal Valve.' },
+    sbb:       { label: 'Category IIB', img: 'imgs/sbb.png',       text: 'Proven isolation - Leak-tight Single Block and Bleed (SBB).' },
+    single:    { label: 'Category III', img: 'imgs/single.png',    text: 'Non-proven isolation - Single or double valve (double preferred over single, if available).' },
+};
 
 // ── Fluid groups ─────────────────────────────────────────────────────────
 // Lower group number = more onerous. Standard fluids infer a base group; the
@@ -72,15 +81,19 @@ function finalGroup(baseGroup, temp) {
 // Returns the minimum required isolation category. Precedence:
 //   CSE (I) > boundary isolation (III) > flare/vent/drains (III) >
 //   small-bore tubing exemption > standard group/duration table.
-function getRequiredCategory({ cse, boundary, flareVentDrains, sbt, group, longDuration, hotWork }) {
-    if (cse)             return 'I';
-    if (boundary)        return 'III';   // single valve locally inside a boundary isolation
-    if (flareVentDrains) return 'III';   // single unproven valve on the LP side
-    if (sbt)             return group <= 2 ? 'IIB' : 'III';
+function getRequiredCategory({ cse, boundary, flareVentDrains, sbt, group, longDuration, hotWork, positiveIsoRisk }) {
+    if (positiveIsoRisk === 'no') return { cat: 'I',   driver: 'outPosIsoRisk' };
+    if (cse)             return { cat: 'I',   driver: 'outCSE' };
+    if (boundary)        return { cat: 'III', driver: 'outBound' };
+    if (flareVentDrains) return { cat: 'III', driver: 'outExempt' };
+    if (sbt)             return { cat: group <= 2 ? 'IIB' : 'III', driver: 'outExempt' };
 
-    if (group <= 2) return (longDuration || hotWork) ? 'I' : 'IIA';
-    if (group === 3) return longDuration ? 'IIA' : 'IIB';
-    return longDuration ? 'IIB' : 'III'; // group 4
+    if (group <= 2) {
+        if (longDuration || hotWork) return { cat: 'I', driver: hotWork ? 'outHotWork' : 'outDur' };
+        return { cat: 'IIA', driver: 'outSub' };
+    }
+    if (group === 3) return { cat: longDuration ? 'IIA' : 'IIB', driver: longDuration ? 'outDur' : 'outSub' };
+    return { cat: longDuration ? 'IIB' : 'III', driver: longDuration ? 'outDur' : 'outSub' };
 }
 
 // Authorisation approvers for a non-compliant deviation (slide 17). "Offshore" and
@@ -228,9 +241,13 @@ function updateProgress() {
     document.getElementById('gatingNotice').style.display =
         (titleFilled && defersToShutdown) ? 'block' : 'none';
 
-    // Next is available either to proceed, or to record a shutdown outcome.
+    const allQuestionsAnswered = proceed &&
+        ['positiveIsoRisk', 'hotWork', 'cse', 'flareVentDrains', 'sbt', 'boundary']
+        .every(n => getRadio(n) !== '');
+
+    // Next is available once all questions answered, or to record a shutdown outcome.
     document.getElementById('nextBtn').style.display =
-        (titleFilled && (proceed || defersToShutdown)) ? 'block' : 'none';
+        (titleFilled && ((proceed && allQuestionsAnswered) || defersToShutdown)) ? 'block' : 'none';
 }
 
 // ── Stage navigation ─────────────────────────────────────────────────────
@@ -264,6 +281,32 @@ function showSpec() {
     if (!document.getElementById('period').value) {
         showAlert('Please select how long containment will be broken for');
         return;
+    }
+
+    const unansweredQ = ['positiveIsoRisk', 'hotWork', 'cse', 'flareVentDrains', 'sbt', 'boundary']
+        .find(n => getRadio(n) === '');
+    if (unansweredQ) {
+        showAlert('Please answer all yes / no questions before continuing');
+        return;
+    }
+
+    const posRisk = getRadio('positiveIsoRisk');
+
+    // spade option is never shown in Stage 2 — it is either auto-applied (posRisk='no')
+    // or ruled out by the user's answer (posRisk='yes').
+    document.getElementById('spadeOption').style.display = 'none';
+
+    if (posRisk === 'no') {
+        // Positive isolation is safe to use — hide the picker, auto-select spade.
+        document.getElementById('isoTypeSection').style.display = 'none';
+        document.getElementById('posIsoNotice').style.display = 'block';
+        document.getElementById('spade').checked = true;
+    } else {
+        // User must choose from valve options.
+        document.getElementById('isoTypeSection').style.display = 'block';
+        document.getElementById('posIsoNotice').style.display = 'none';
+        // Clear spade if it was previously auto-selected.
+        if (document.getElementById('spade').checked) document.getElementById('spade').checked = false;
     }
 
     document.getElementById('lineSpecificationDiv').style.display = 'block';
@@ -310,19 +353,20 @@ function getInputData() {
     const temp  = parseFloat(document.getElementById('operatingTemp').value);
     const group = finalGroup(fluid.baseGroup, temp);
 
-    const cse             = document.getElementById('cse').checked;
-    const hotWork         = document.getElementById('hotWork').checked;
-    const flareVentDrains = document.getElementById('flareVentDrains').checked;
-    const sbt             = document.getElementById('sbt').checked;
-    const boundary        = document.getElementById('boundary').checked;
+    const positiveIsoRisk = getRadio('positiveIsoRisk');
+    const cse             = getRadio('cse') === 'yes';
+    const hotWork         = getRadio('hotWork') === 'yes';
+    const flareVentDrains = getRadio('flareVentDrains') === 'yes';
+    const sbt             = getRadio('sbt') === 'yes';
+    const boundary        = getRadio('boundary') === 'yes';
     const longDuration    = document.getElementById('period').value === 'moreThanShift';
 
-    const requiredCat = getRequiredCategory({ cse, boundary, flareVentDrains, sbt, group, longDuration, hotWork });
+    const { cat: requiredCat, driver: drivingField } = getRequiredCategory({ cse, boundary, flareVentDrains, sbt, group, longDuration, hotWork, positiveIsoRisk });
     const required    = CATEGORY_INFO[requiredCat];
 
     const selValue = document.querySelector('input[name="isoTypeSelected"]:checked').value;
     const selCat   = ISO_TO_CATEGORY[selValue];
-    const selected = CATEGORY_INFO[selCat];
+    const selected = ISO_INFO[selValue];
 
     const meets = CATEGORY_RANK[selCat] >= CATEGORY_RANK[requiredCat];
 
@@ -337,6 +381,7 @@ function getInputData() {
 
     document.getElementById('outDur').textContent = longDuration ? 'More than one shift' : 'One shift or less';
     document.getElementById('outLineDesc').textContent = lineDesc;
+    document.getElementById('outPosIsoRisk').textContent = positiveIsoRisk === 'yes' ? 'Yes' : 'No';
     document.getElementById('outHotWork').textContent  = hotWork ? 'Yes' : 'No';
     document.getElementById('outCSE').textContent      = cse ? 'Yes' : 'No';
 
@@ -381,6 +426,12 @@ function getInputData() {
             authEl.textContent = 'Authorisation for this deviation must be obtained through the site deviation process.';
         }
     }
+
+    // Highlight the table cell that drove the required category
+    ['outPosIsoRisk', 'outHotWork', 'outCSE', 'outExempt', 'outBound', 'outDur', 'outSub']
+        .forEach(id => document.getElementById(id).removeAttribute('style'));
+    const driverEl = document.getElementById(drivingField);
+    if (driverEl) { driverEl.style.color = 'red'; driverEl.style.fontWeight = 'bold'; }
 
     setControls({ cse, sbt, group, hotWork });
 
@@ -493,11 +544,31 @@ function init() {
     fluidSelect.addEventListener('change', toggleOtherFluid);
     toggleOtherFluid();
 
-    // Progressive disclosure wiring
+    // Progressive disclosure wiring — title / planning checks
     document.getElementById('isoTitle').addEventListener('input', updateProgress);
     document.querySelectorAll('input[name="majorAccident"], input[name="waitShutdown"]')
         .forEach(radio => radio.addEventListener('change', updateProgress));
     updateProgress();
+
+    // Progressive reveal of the additional yes/no questions
+    const QUESTION_CHAIN = {
+        positiveIsoRisk: 'qHotWork',
+        hotWork:         'qCse',
+        cse:             'qFlareVentDrains',
+        flareVentDrains: 'qSbt',
+        sbt:             'qBoundary',
+        boundary:        'iccBlock',
+    };
+    Object.keys(QUESTION_CHAIN).forEach(name => {
+        document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+            radio.addEventListener('change', () => {
+                const next = document.getElementById(QUESTION_CHAIN[name]);
+                next.style.display = 'block';
+                next.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                updateProgress();
+            });
+        });
+    });
 
     document.getElementById('helpBtn').addEventListener('click', () => popitup('help.html'));
     document.getElementById('nextBtn').addEventListener('click', showSpec);

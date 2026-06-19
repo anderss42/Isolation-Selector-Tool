@@ -141,38 +141,87 @@
 
                         <br>
                         <div class="form-group">
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="hotWork" />
-                                <label for="hotWork" class="form-check-label">Is hot work involved (spark potential or
-                                    naked flame, in the task or vicinity)?</label>
+                            <div id="qPosIsoRisk">
+                                <p class="mb-1">Is the risk from the installation and removal of positive isolation greater than using a valve isolation?</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="positiveIsoRisk" id="positiveIsoRiskYes" value="yes" />
+                                    <label for="positiveIsoRiskYes" class="form-check-label">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="positiveIsoRisk" id="positiveIsoRiskNo" value="no" />
+                                    <label for="positiveIsoRiskNo" class="form-check-label">No</label>
+                                </div>
                             </div>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="cse" />
-                                <label for="cse" class="form-check-label">Is this for confined space entry?</label>
+
+                            <div id="qHotWork" style="display:none; margin-top:10px;">
+                                <p class="mb-1">Is hot work involved (spark potential or naked flame, in the task or vicinity)?</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="hotWork" id="hotWorkYes" value="yes" />
+                                    <label for="hotWorkYes" class="form-check-label">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="hotWork" id="hotWorkNo" value="no" />
+                                    <label for="hotWorkNo" class="form-check-label">No</label>
+                                </div>
                             </div>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="flareVentDrains" />
-                                <label for="flareVentDrains" class="form-check-label">Is this a flare, LP vent or closed
-                                    drains system?</label>
+
+                            <div id="qCse" style="display:none; margin-top:10px;">
+                                <p class="mb-1">Is this for confined space entry?</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="cse" id="cseYes" value="yes" />
+                                    <label for="cseYes" class="form-check-label">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="cse" id="cseNo" value="no" />
+                                    <label for="cseNo" class="form-check-label">No</label>
+                                </div>
                             </div>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="sbt" />
-                                <label for="sbt" class="form-check-label">Is this an instrument small-bore tubing (SBT)
-                                    personal isolation?</label>
+
+                            <div id="qFlareVentDrains" style="display:none; margin-top:10px;">
+                                <p class="mb-1">Is this a flare, LP vent or closed drains system?</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="flareVentDrains" id="flareVentDrainsYes" value="yes" />
+                                    <label for="flareVentDrainsYes" class="form-check-label">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="flareVentDrains" id="flareVentDrainsNo" value="no" />
+                                    <label for="flareVentDrainsNo" class="form-check-label">No</label>
+                                </div>
                             </div>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" name="boundary" id="boundary" />
-                                <label for="boundary" class="form-check-label">Is this within a boundary
-                                    isolation?</label>
+
+                            <div id="qSbt" style="display:none; margin-top:10px;">
+                                <p class="mb-1">Is this an instrument small-bore tubing (SBT) personal isolation?</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="sbt" id="sbtYes" value="yes" />
+                                    <label for="sbtYes" class="form-check-label">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="sbt" id="sbtNo" value="no" />
+                                    <label for="sbtNo" class="form-check-label">No</label>
+                                </div>
+                            </div>
+
+                            <div id="qBoundary" style="display:none; margin-top:10px;">
+                                <p class="mb-1">Is this within a boundary isolation?</p>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="boundary" id="boundaryYes" value="yes" />
+                                    <label for="boundaryYes" class="form-check-label">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" name="boundary" id="boundaryNo" value="no" />
+                                    <label for="boundaryNo" class="form-check-label">No</label>
+                                </div>
                             </div>
                         </div>
 
-                        <p></p>
-                        <div class="form-group">
-                            <div class="input-append">
-                                <label for="iccNo" class="form-label">Enter the ICC number if known:</label>
-                                <input id="iccNo" type="number" class="span2" min="300000" max="1000000">
-                                <span class="add-on"> Optional</span>
+                        <div id="iccBlock" style="display:none;">
+                            <p></p>
+                            <div class="form-group">
+                                <div class="input-append">
+                                    <label for="iccNo" class="form-label">Enter the ICC number if known:</label>
+                                    <input id="iccNo" type="number" class="span2" min="300000" max="1000000">
+                                    <span class="add-on"> Optional</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -209,40 +258,49 @@
                         required>
                     <p></p>
                 </div>
-                <br>
-
-                <h4>
-                    What is the highest standard of isolation that can be reasonably applied?
-                </h4>
-                <div>
-
-                    <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />
-                    <label for="spade">
-                        <img src="imgs/spade.png" alt="Spade or physical" style="width: 300px; height: 110px" />
-                        Spade or disconnection
-                    </label>
-
+                <div id="posIsoNotice" style="display:none; margin-bottom:10px;">
+                    <p style="font-style:italic; color:#555;">Positive isolation (spade or disconnection) will be applied — no isolation type selection required.</p>
                 </div>
-                <div>
-                    <input type="radio" name="isoTypeSelected" id="dbb" class="input-hidden" value="dbb" />
-                    <label for="dbb">
-                        <img src="imgs/dbb.png" alt="Double block and bleed" style="width: 300px; height: 110px" />
-                        Proven double block and bleed
-                    </label>
-                </div>
-                <div>
-                    <input type="radio" name="isoTypeSelected" id="sbb" class="input-hidden" value="sbb" />
-                    <label for="sbb">
-                        <img src="imgs/sbb.png" alt="Single block and bleed" style="width: 300px; height: 110px" />
-                        Proven single valve
-                    </label>
-                </div>
-                <div>
-                    <input type="radio" name="isoTypeSelected" id="single" class="input-hidden" value="single" />
-                    <label for="single">
-                        <img src="imgs/single.png" alt="Single unproved" style="width: 300px; height: 110px" />
-                        Unproven single or double valve
-                    </label>
+
+                <div id="isoTypeSection">
+                    <h4>
+                        What is the highest standard of isolation that can be reasonably applied?
+                    </h4>
+                    <div id="spadeOption">
+                        <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />
+                        <label for="spade">
+                            <img src="imgs/spade.png" alt="Positive isolation - Spade or disconnection" />
+                            <span>Category I — Positive isolation - Spade or disconnection</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="isoTypeSelected" id="dbb" class="input-hidden" value="dbb" />
+                        <label for="dbb">
+                            <img src="imgs/dbb.png" alt="Double block and bleed" />
+                            <span>Category IIA — Proven Double Block and Bleed (DBB)</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="isoTypeSelected" id="twin_seal" class="input-hidden" value="twin_seal" />
+                        <label for="twin_seal">
+                            <img src="imgs/twin_seal.png" alt="Twin seal valve" />
+                            <span>Category IIA — Proven Twin Seal Valve</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="isoTypeSelected" id="sbb" class="input-hidden" value="sbb" />
+                        <label for="sbb">
+                            <img src="imgs/sbb.png" alt="Single block and bleed" />
+                            <span>Category IIB — Proven Single Block and Bleed (SBB)</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="isoTypeSelected" id="single" class="input-hidden" value="single" />
+                        <label for="single">
+                            <img src="imgs/single.png" alt="Single unproved" />
+                            <span>Category III — Non-Proven Single or Double Valve</span>
+                        </label>
+                    </div>
                 </div>
             </form>
         </div>
@@ -316,6 +374,10 @@
                                     <td id="outLineDesc"></td>
                                 </tr>
                                 <tr>
+                                    <th scope="row">Positive isolation risk &gt; valve isolation risk:</th>
+                                    <td id="outPosIsoRisk"></td>
+                                </tr>
+                                <tr>
                                     <th scope="row">Hot work:</th>
                                     <td id="outHotWork"></td>
                                 </tr>
@@ -347,12 +409,12 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h4 class="text-start">The minimum required level for this isolation is:</h4>
-                        <img id=outIsoImg src="" alt="" height="100px" width="240px">
+                        <img id=outIsoImg src="" alt="" style="height:120px; width:auto;">
                         <p id="outIsoText"></p>
                     </div>
                     <div class="col-md-6">
                         <h4 class="text-start">The isolation that you selected is:</h4>
-                        <img id=outSelIsoImg src="" alt="" height="100px" width="240px">
+                        <img id=outSelIsoImg src="" alt="" style="height:120px; width:auto;">
                         <p id="outIsoSelText"></p>
                     </div>
                 </div>

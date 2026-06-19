@@ -9,51 +9,72 @@ index.html          — main application (single page, all UI)
 help.html           — help guide, opens in a popup window
 JS/main.js          — all application logic (no framework, vanilla JS)
 CSS/stlyes.css      — stylesheet (note: filename has a typo — do not rename, both HTML files reference it)
-imgs/               — icon images used for radio button selections and output
+imgs/               — P&ID-style PNG diagrams used for isolation type selection and output
 ```
 
 ## How the tool works
 
-The tool follows the **HSG253-aligned decision tree** (see `HSE-CHANGE-REQUIREMENTS.md` for the full requirements and rationale). It no longer uses a multiplicative risk score.
+The tool follows the **HSG253-aligned decision tree**. It no longer uses a multiplicative risk score.
 
 The user fills in two forms in sequence:
 
-1. **System Properties** (`systemProperties` form) — isolation title, the two front-end planning checks (Yes/No), fluid (dropdown → inferred Fluid Group), operating temperature, duration, hot work / CSE / exemption / boundary switches, optional ICC number
-2. **Line Specification** (`spec` form) — line/point description, highest isolation type available
+1. **System Properties** (`systemProperties` form) — isolation title, the two front-end planning checks (Yes/No), fluid (dropdown → inferred Fluid Group), operating temperature, duration, then six Yes/No questions revealed one at a time (progressive disclosure), optional ICC number
+2. **Line Specification** (`spec` form) — line/point description, highest isolation type available (valve options only — spade is never selectable here)
 
-**Progressive disclosure:** `updateProgress()` reveals the form in steps — title first, then the planning checks once a title is entered, then the rest (`#restBlock`) once both checks are answered **No**. The **Next** button (`#nextBtn`) is hidden until it is usable. Bound to the title `input` event and the planning-check `change` events.
+**Progressive disclosure** has two layers:
+- `updateProgress()` reveals the form in steps — title first, then the planning checks, then `#restBlock` once both checks are answered **No**.
+- Within `#restBlock`, the six Yes/No questions are revealed **one at a time** as each is answered (`QUESTION_CHAIN` in `init()`). Each newly revealed question is smoothly scrolled into view. The ICC field (`#iccBlock`) and **Next** button only appear after all six are answered.
 
-On **Next**, front-end gating (`showSpec()`) short-circuits to a **shutdown record** if a failure could cause a major accident event, or if it is reasonably practicable to wait for a shutdown (the two `majorAccident` / `waitShutdown` radio groups).
+The six Yes/No questions (in order of appearance):
+1. **positiveIsoRisk** — Is the risk from installation/removal of positive isolation greater than using valve isolation?
+2. **hotWork** — Hot work involved?
+3. **cse** — Confined space entry?
+4. **flareVentDrains** — Flare, LP vent or closed drains?
+5. **sbt** — Instrument small-bore tubing (SBT) personal isolation?
+6. **boundary** — Within a boundary isolation?
 
-On **Calculate**, `getInputData()` in [JS/main.js](JS/main.js):
-- Resolves the **Fluid Group** (1–4) from the selected fluid, then escalates it by **operating temperature** via `finalGroup()` (more onerous of base group and `tempGroup()`).
-- Derives the **minimum required category** via `getRequiredCategory()` with precedence: CSE → I, boundary → III, flare/vent/drains → III, SBT → IIB (Groups 1&2) / III (Groups 3&4), otherwise the group × duration table (hot work escalates Groups 1&2 only).
-- Compares the selected isolation's category against the required one using `CATEGORY_RANK`. If it does not meet, it shows the Level 2 / deviation message plus the approvers from `getAuthorisers()` (slide 17). There is **no location input** — both the offshore and onshore approver are shown; no OIM is required for non-hazardous Group 4.
+On **Next**, `showSpec()`:
+- Short-circuits to a **shutdown record** if either planning check is Yes.
+- If `positiveIsoRisk === 'no'`: hides the isolation type picker (`#isoTypeSection`), shows `#posIsoNotice`, and auto-checks the spade radio — the user only needs to enter a line description. Stage 2 proceeds to Calculate with spade forced.
+- If `positiveIsoRisk === 'yes'`: shows the isolation type picker but keeps `#spadeOption` hidden — only the four valve options are available.
+
+On **Calculate**, `getInputData()`:
+- Resolves the **Fluid Group** (1–4) from the selected fluid, escalated by operating temperature via `finalGroup()`.
+- Derives the **minimum required category** via `getRequiredCategory()` — now returns `{ cat, driver }` where `driver` is the ID of the output table cell that caused the required category. The driver cell is highlighted **red and bold** in the output table.
+- Precedence: `positiveIsoRisk=no` → I, CSE → I, boundary → III, flare/vent/drains → III, SBT → IIB/III, otherwise group × duration table (hot work escalates Groups 1&2 only).
+- Compares the selected isolation's category against the required one using `CATEGORY_RANK`. If it does not meet, shows the Level 2 / deviation message plus approvers from `getAuthorisers()`.
 
 ## Isolation categories (in order of strength)
-| Category | Label | Maps to ID / image | Rank |
-|----------|-------|--------------------|------|
+| Category | Label | Selection value | Rank |
+|----------|-------|-----------------|------|
 | I | Positive isolation — spade or disconnection | `spade` | 4 |
 | IIA | Proven Double Block and Bleed (DBB) | `dbb` | 3 |
-| IIB | Proven leak-tight Single Block and Bleed (SBB) | `sbb` | 2 |
+| IIA | Proven Twin Seal Valve | `twin_seal` | 3 |
+| IIB | Proven Single Block and Bleed (SBB) | `sbb` | 2 |
 | III | Non-proven single or double valve | `single` | 1 |
 
-The four isolation images (`spade/dbb/sbb/single.png`) are reused to represent categories I/IIA/IIB/III.
+**Two separate lookup tables** exist for category display:
+- `CATEGORY_INFO` — used for the **minimum required** side of the output (keyed by category string: I / IIA / IIB / III)
+- `ISO_INFO` — used for the **isolation selected** side of the output (keyed by selection value: spade / dbb / twin_seal / sbb / single). Twin Seal Valve has its own image (`imgs/twin_seal.png`) and label here even though it maps to category IIA.
+
+All isolation images are P&ID-style pipeline diagrams (LIVE SYSTEM → valves/spade → ISOLATED SYSTEM). The spade image is `imgs/spade.png`. Stage 2 picker images are sized via CSS (`#isoTypeSection input[type=radio] + label > img`) at 320×120px with `object-fit:contain`. Output card images use `height:120px; width:auto`.
 
 ## Fluid groups
-Defined in the `FLUIDS` array (name → base group) plus `GROUP_NAMES`. The dropdown is populated by JS, grouped by Fluid Group, with an "Other" option that reveals a manual name + group selector. Temperature thresholds (slide 9) live in `tempGroup()`.
+Defined in the `FLUIDS` array (name → base group) plus `GROUP_NAMES`. The dropdown is populated by JS, grouped by Fluid Group, with an "Other" option that reveals a manual name + group selector. Temperature thresholds live in `tempGroup()`.
 
 ## Modals
 
-Validation messages and the PDF name confirmation use **Bootstrap modals**, not browser `alert()`/`prompt()`. `showAlert(message)` drives `#alertModal`; `showNamePrompt(message)` drives `#nameModal` and returns a Promise resolving to the entered name (or `null` if cancelled). Both rely on the global `bootstrap` object, which is available by the time of user interaction even though `main.js` runs before the Bootstrap bundle.
+Validation messages and the PDF name confirmation use **Bootstrap modals**, not browser `alert()`/`prompt()`. `showAlert(message)` drives `#alertModal`; `showNamePrompt(message)` drives `#nameModal` and returns a Promise resolving to the entered name (or `null` if cancelled).
 
 ## Key known issues / gotchas
 
 - **CSS filename typo**: the stylesheet is `CSS/stlyes.css` (not `styles`). Both `index.html` and `help.html` reference this name — do not correct it without updating both files simultaneously.
 - `help.html` loads `JS/main.js` unnecessarily; `init()` early-returns when `#fluidSelect` is absent, so it is harmless there.
 - The multi-line feature (`numOfLines`, `nextLine()`, `backLine()`) was removed/commented out — don't revive it without understanding the full intended flow.
-- `index.html` loads the Bootstrap **bundle** once (the modals depend on it). `help.html` still loads Bootstrap twice (bundle + `bootstrap.min.js` + popper) — the duplicate can cause conflicts there.
-- The old multiplicative-score model (`releaseMatrix`, purpose overrides, `nonInvasiveControl3`, Motion purpose) has been removed.
+- `index.html` loads the Bootstrap **bundle** once (the modals depend on it). `help.html` still loads Bootstrap twice — the duplicate can cause conflicts there.
+- The old multiplicative-score model has been removed.
+- **`#spadeOption`** is always hidden in Stage 2 (`showSpec()` sets `display:none` unconditionally). The spade radio is only ever selected programmatically (when `positiveIsoRisk === 'no'`), never by the user.
+- **Playwright tests** in `tests/` reference the old checkbox IDs and `fillStage1` — these need updating to use the new radio names (`name="hotWork"` etc.) and the `positiveIsoRisk` question.
 
 ## No build step
 
@@ -61,11 +82,11 @@ Open `index.html` directly in a browser. There is no package manager, bundler, o
 
 ## PDF export
 
-`printPDF()` uses **html2canvas + jsPDF** directly. It asks for a name via the `#nameModal` modal, appends a confirmation line to the output card, then renders `#outCard` to canvas and places it on A4 portrait pages at **full content width**, flowing across multiple pages if the content is taller than one page (margins are masked white so slice overlap doesn't bleed in). The filename is `IST_Outcome.pdf` or `ICC <number> IST_Outcome.pdf` if an ICC number was entered.
+`printPDF()` uses **html2canvas + jsPDF** directly. It asks for a name via the `#nameModal` modal, appends a confirmation line to the output card, then renders `#outCard` to canvas and places it on A4 portrait pages at **full content width**. The filename is `IST_Outcome.pdf` or `ICC <number> IST_Outcome.pdf` if an ICC number was entered.
 
 ## Tests
 
-Playwright suite in `tests/` (run `npx playwright test`; config in `playwright.config.js` serves the folder on port 3000). `tests/helpers.js` holds an independent re-derivation of the decision model plus page-interaction helpers (`fillStage1` respects the progressive reveal). Specs cover the decision table, exemptions, temperature escalation, gating/shutdown, authorisation, navigation, and modal-based validation.
+Playwright suite in `tests/` (run `npx playwright test`; config in `playwright.config.js` serves the folder on port 3000). **Note: tests are currently out of date** — they need updating for the radio-button questions, `positiveIsoRisk` logic, Twin Seal Valve option, and the skip-to-results flow when `positiveIsoRisk === 'no'`.
 
 ## Reference documents
 

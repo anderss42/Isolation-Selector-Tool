@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 120">
+  <rect width="370" height="120" fill="white"/>
+
+  <!-- LIVE SYSTEM -->
+  <rect x="3" y="28" width="82" height="64" rx="32" fill="white" stroke="#777" stroke-width="1.5"/>
+  <text x="44" y="57" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#666">LIVE</text>
+  <text x="44" y="69" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#666">SYSTEM</text>
+
+  <!-- Pipeline -->
+  <line x1="85" y1="60" x2="283" y2="60" stroke="#666" stroke-width="2"/>
+
+  <!-- Valve V2 at x=118 — closed bowtie (two filled triangles meeting at centre) -->
+  <polygon points="106,50 118,60 106,70" fill="#cc2200"/>
+  <polygon points="130,50 118,60 130,70" fill="#cc2200"/>
+
+  <!-- PBU 2 — stem up from valve centre, circle at top -->
+  <line x1="118" y1="50" x2="118" y2="32" stroke="#555" stroke-width="1.5"/>
+  <circle cx="118" cy="22" r="10" fill="white" stroke="#555" stroke-width="1.5"/>
+  <text x="118" y="20" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#555">PBU</text>
+  <text x="118" y="28" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#555">2</text>
+
+  <!-- Valve V1 at x=160 — closed bowtie -->
+  <polygon points="148,50 160,60 148,70" fill="#cc2200"/>
+  <polygon points="172,50 160,60 172,70" fill="#cc2200"/>
+
+  <!-- PBU 1 — stem up from valve centre, circle at top -->
+  <line x1="160" y1="50" x2="160" y2="32" stroke="#555" stroke-width="1.5"/>
+  <circle cx="160" cy="22" r="10" fill="white" stroke="#555" stroke-width="1.5"/>
+  <text x="160" y="20" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#555">PBU</text>
+  <text x="160" y="28" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#555">1</text>
+
+  <!-- Spectacle blind / spade — solid disc + double flange lines -->
+  <circle cx="220" cy="60" r="9" fill="#333"/>
+  <line x1="229" y1="54" x2="248" y2="54" stroke="#555" stroke-width="2"/>
+  <line x1="229" y1="66" x2="248" y2="66" stroke="#555" stroke-width="2"/>
+
+  <!-- Valve labels -->
+  <text x="118" y="84" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#666">V 2</text>
+  <text x="160" y="84" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#666">V 1</text>
+
+  <!-- ISOLATED SYSTEM -->
+  <rect x="285" y="28" width="82" height="64" rx="32" fill="white" stroke="#777" stroke-width="1.5"/>
+  <text x="326" y="54" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#666">ISOLATED</text>
+  <text x="326" y="65" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#666">SYSTEM</text>
+</svg>

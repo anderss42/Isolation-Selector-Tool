@@ -129,6 +129,14 @@ const sbtControl4 = "Radio link to control room when containment is being broken
 const sbtControl5 = "Contingency plan to be detailed on ICC or TBT (for personal isolations) in case of isolation failure.";
 const sbtControl6 = "Continuous gas monitoring to be present when breaching hydrocarbon systems.";
 
+// Flare / LP vent / closed drains — single valve exception controls
+const fvdControl1 = "Production Supervisor confirms no abnormal/increased flaring, venting, leak testing, compressor changes, well switches, deluge/F&G testing or other plant instability expected.";
+const fvdControl2 = "Work party formally briefed that work is against a single valve on flare/vent/drain.";
+const fvdControl3 = "Additional controls for toxic service.";
+const fvdControl4 = "Rated blanks/bolts/gaskets verified and at worksite.";
+const fvdControl5 = "AA/PA confirm valve position indicator shows fully closed.";
+const fvdControl6 = "AA attends TBT.";
+
 // CSE controls
 const CSEControl1 = "Complete separation of the plant / equipment to be worked on from other parts of the system.";
 const CSEControl2 = "Controls required as per TUK-17-C-004 section 8";
@@ -199,18 +207,29 @@ function getFluidInfo() {
 }
 
 // ── Control selection ────────────────────────────────────────────────────
-function getStandardControls(group) {
-    const controls = [control1, control2];
+const PROVEN_VALVE_ISOS = new Set(['dbb', 'twin_seal', 'sbb']);
+
+function getStandardControls(group, isProvenValve) {
+    const controls = isProvenValve ? [control1, control2] : [control2];
     if (group <= 2) controls.push(control3, control4, control5);
     else            controls.push(control4);
     return controls;
 }
 
-function setControls({ cse, sbt, group, hotWork }) {
+function setControls({ cse, sbt, flareVentDrains, group, hotWork, selValue }) {
+    const isProvenValve = PROVEN_VALVE_ISOS.has(selValue);
     let controls;
-    if      (cse) controls = [CSEControl1, CSEControl2];
-    else if (sbt) controls = [sbtControl1, sbtControl2, sbtControl3, sbtControl4, sbtControl5, sbtControl6];
-    else          controls = getStandardControls(group);
+    if (cse) {
+        controls = [CSEControl1, CSEControl2];
+    } else if (sbt) {
+        controls = isProvenValve
+            ? [sbtControl1, sbtControl2, sbtControl3, sbtControl4, sbtControl5, sbtControl6]
+            : [sbtControl1, sbtControl3, sbtControl4, sbtControl5, sbtControl6];
+    } else if (flareVentDrains && selValue === 'single') {
+        controls = [fvdControl1, fvdControl2, fvdControl3, fvdControl4, fvdControl5, fvdControl6];
+    } else {
+        controls = getStandardControls(group, isProvenValve);
+    }
 
     if (hotWork && !cse && controls.length < 6) controls = [...controls, hotWorkControl];
 
@@ -312,6 +331,8 @@ function showSpec() {
     document.getElementById('lineSpecificationDiv').style.display = 'block';
     document.getElementById('calcBtn').style.display = 'block';
     document.getElementById('nextBtn').style.visibility = 'hidden';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── Shutdown (gating) outcome ────────────────────────────────────────────
@@ -433,12 +454,20 @@ function getInputData() {
     const driverEl = document.getElementById(drivingField);
     if (driverEl) { driverEl.style.color = 'red'; driverEl.style.fontWeight = 'bold'; }
 
-    setControls({ cse, sbt, group, hotWork });
+    setControls({ cse, sbt, flareVentDrains, group, hotWork, selValue });
 
     document.getElementById('prepControl1').textContent = prepControl1;
     document.getElementById('prepControl2').textContent = prepControl2;
     document.getElementById('prepControl3').textContent = group <= 3 ? prepControl3 : '';
     document.getElementById('prepControl4').textContent = group <= 3 ? prepControl4 : '';
+
+    if (meets) {
+        document.getElementById('controlsHeading').textContent = 'Isolation Controls required are:';
+        document.getElementById('prepHeading').textContent = 'Preparation of equipment requirements:';
+    } else {
+        document.getElementById('controlsHeading').textContent = 'Suggested controls to consider in the Level 2 risk assessment:';
+        document.getElementById('prepHeading').textContent = 'Suggested preparation controls to consider in the Level 2 risk assessment:';
+    }
 
     revealOutput();
 }
@@ -566,6 +595,11 @@ function init() {
                 next.style.display = 'block';
                 next.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 updateProgress();
+                if (name === 'boundary') {
+                    setTimeout(() => {
+                        document.getElementById('nextBtn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 400);
+                }
             });
         });
     });

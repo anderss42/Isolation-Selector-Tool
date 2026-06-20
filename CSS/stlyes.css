@@ -117,12 +117,6 @@ li {
   padding-right: 2px;
 }
 
-  .span2{
-    padding-bottom: 3px;
-    padding-top: 10px;
-  }
-
-
   .center {
     margin: 0;
     position: absolute;
@@ -148,12 +142,47 @@ li {
     padding-top: 0px;
   }
 
-/* New input controls */
-#fluidSelect,
-#otherFluidGroup {
-  max-width: 420px;
+/* Yes/No question table */
+.q-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
 }
 
+.q-table td {
+  padding: 5px 4px;
+  vertical-align: middle;
+}
+
+.q-table tr + tr td {
+  border-top: 1px solid #dee2e6;
+}
+
+.q-radio-cell {
+  width: 62px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Error state for unanswered question rows */
+.q-error td {
+  background-color: #fff3f3;
+}
+
+.q-error td:first-child {
+  border-left: 3px solid red;
+  padding-left: 5px;
+}
+
+/* Error state for isolation type picker section */
+.section-error {
+  border: 2px solid red;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+/* New input controls */
+#otherFluidGroup,
 #otherFluidWrap {
   max-width: 420px;
 }
@@ -169,6 +198,33 @@ li {
   margin-left: 0 !important;
   margin-right: 0 !important;
   box-sizing: border-box;
+}
+
+/* Contextual help tip button — triggers Bootstrap popover */
+.help-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 4px;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.help-tip:hover,
+.help-tip:focus {
+  background-color: #0b5ed7;
+  outline: 2px solid #0d6efd;
+  outline-offset: 1px;
 }
 
 /* Isolation type selector — Stage 2 */

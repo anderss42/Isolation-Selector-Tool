@@ -25,6 +25,8 @@ The user fills in two forms in sequence:
 - `updateProgress()` reveals the form in steps — title first, then the planning checks, then `#restBlock` once both checks are answered **No**.
 - Within `#restBlock`, the six Yes/No questions are revealed **one at a time** as each is answered (`QUESTION_CHAIN` in `init()`). Each newly revealed question is smoothly scrolled into view. The ICC field (`#iccBlock`) and **Next** button only appear after all six are answered.
 
+**Question layout** — both the two front-end planning checks and the six progressive questions are rendered as `<table class="q-table">` elements. Each question is a `<tr>` row; Yes and No radios each occupy a fixed-width `<td class="q-radio-cell">`. Because the question containers are `<tr>` elements (not `<div>`s), the `QUESTION_CHAIN` change handler sets `style.display = 'table-row'` (not `'block'`) when revealing the next question, and `iccBlock` (a `<div>`) still uses `'block'`. The handler uses `next.tagName === 'TR' ? 'table-row' : 'block'` to distinguish.
+
 The six Yes/No questions (in order of appearance):
 1. **positiveIsoRisk** — Is the risk from installation/removal of positive isolation greater than using valve isolation?
 2. **hotWork** — Hot work involved?
@@ -62,9 +64,31 @@ All isolation images are P&ID-style pipeline diagrams (LIVE SYSTEM → valves/sp
 ## Fluid groups
 Defined in the `FLUIDS` array (name → base group) plus `GROUP_NAMES`. The dropdown is populated by JS, grouped by Fluid Group, with an "Other" option that reveals a manual name + group selector. Temperature thresholds live in `tempGroup()`.
 
+## Validation / error highlighting
+
+Both `showSpec()` (Next) and `getInputData()` (Calculate) validate **all fields before returning** — they do not early-return on the first missing field. Every missing or invalid field is highlighted simultaneously:
+
+- **Text inputs and selects** — `style.borderColor = 'red'` applied; cleared to `''` via `input`/`change` listeners when the user corrects the field.
+- **Unanswered question rows** — `.q-error` CSS class added to the `<tr>`; gives a light-red background and red left border. Cleared immediately when the radio is answered (via `radio.closest('tr')?.classList.remove('q-error')` in the change handler).
+- **Isolation type picker** (Stage 2, when no option selected) — `.section-error` CSS class added to `#isoTypeSection`; gives a red border around the whole section. Cleared when any isolation radio is selected.
+
+A single summary alert is shown after all highlights are applied. The shutdown short-circuit path (`majorAccident`/`waitShutdown` = yes) only requires the title to be filled; fluid/temp/duration are not checked in that path.
+
+## Form field layout
+
+The three data-entry fields in `#restBlock` (fluid, operating temperature, duration) use `d-flex align-items-center gap-2 flex-wrap` so the label and control sit on the same line. The `otherFluidWrap` (shown when "Other" is selected) sits in its own block below the flex row. The operating temperature uses a Bootstrap `input-group` (label → `?` button → input + °C addon) at a fixed `width: 150px`. The duration and fluid selects use Bootstrap `form-select` with a `max-width` set inline.
+
 ## Modals
 
 Validation messages and the PDF name confirmation use **Bootstrap modals**, not browser `alert()`/`prompt()`. `showAlert(message)` drives `#alertModal`; `showNamePrompt(message)` drives `#nameModal` and returns a Promise resolving to the entered name (or `null` if cancelled).
+
+## Contextual help popovers
+
+Eight fields carry a small blue `?` button (`.help-tip`) that opens a Bootstrap popover on hover/focus. The buttons carry only a `data-help-key` attribute; all title and content strings live in the `HELP_CONTENT` map in `JS/main.js`. Popovers are initialised inside a `DOMContentLoaded` listener (not directly in `init()`) because `main.js` is deferred before the Bootstrap bundle — calling `new bootstrap.Popover()` directly in `init()` would run before Bootstrap is defined.
+
+Fields with popovers: **operating temperature** (`temp`), **duration** (`duration`), **positiveIsoRisk** (`posIsoRisk`, HTML content), **hotWork** (`hotWork`), **cse** (`cse`), **flareVentDrains** (`flareVentDrains`), **sbt** (`sbt`), **boundary** (`boundary`).
+
+To add a new popover: add an entry to `HELP_CONTENT` and add `<button type="button" class="help-tip" data-help-key="yourKey">?</button>` inline in the relevant label or table cell.
 
 ## Key known issues / gotchas
 
@@ -74,7 +98,7 @@ Validation messages and the PDF name confirmation use **Bootstrap modals**, not 
 - `index.html` loads the Bootstrap **bundle** once (the modals depend on it). `help.html` still loads Bootstrap twice — the duplicate can cause conflicts there.
 - The old multiplicative-score model has been removed.
 - **`#spadeOption`** is always hidden in Stage 2 (`showSpec()` sets `display:none` unconditionally). The spade radio is only ever selected programmatically (when `positiveIsoRisk === 'no'`), never by the user.
-- **Playwright tests** in `tests/` reference the old checkbox IDs and `fillStage1` — these need updating to use the new radio names (`name="hotWork"` etc.) and the `positiveIsoRisk` question.
+- **Playwright tests** in `tests/` reference the old checkbox IDs and `fillStage1` — these need updating to use the new radio names (`name="hotWork"` etc.), the `positiveIsoRisk` question, and the new table-row question structure.
 
 ## No build step
 

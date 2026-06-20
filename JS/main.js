@@ -271,41 +271,75 @@ function updateProgress() {
 
 // ── Stage navigation ─────────────────────────────────────────────────────
 function showSpec() {
-    const isoTitle = document.getElementById('isoTitle').value;
-    if (!isoTitle) {
-        document.getElementById('isoTitle').style.borderColor = 'red';
-        showAlert('Please enter a title for the isolation');
-        return;
-    }
-    document.getElementById('isoTitle').style.borderColor = 'black';
+    let hasError = false;
 
-    // Front-end gating (slide 14) — short-circuits to a shutdown record.
-    if (getRadio('majorAccident') === 'yes') {
-        showShutdownOutcome(SHUTDOWN_HIGHRISK_TEXT);
-        return;
+    const titleEl = document.getElementById('isoTitle');
+    if (!titleEl.value.trim()) {
+        titleEl.style.borderColor = 'red';
+        hasError = true;
+    } else {
+        titleEl.style.borderColor = '';
     }
-    if (getRadio('waitShutdown') === 'yes') {
-        showShutdownOutcome(SHUTDOWN_PRACTICABLE_TEXT);
+
+    if (hasError) {
+        showAlert('Please complete the highlighted fields before continuing.');
         return;
     }
 
-    const fluid = getFluidInfo();
-    if (!fluid || !fluid.name) { showAlert('Please select the fluid being isolated'); return; }
-    if (Number.isNaN(fluid.baseGroup)) { showAlert('Please select the fluid group for the substance entered'); return; }
+    // Shutdown short-circuit — no further fields required.
+    if (getRadio('majorAccident') === 'yes') { showShutdownOutcome(SHUTDOWN_HIGHRISK_TEXT); return; }
+    if (getRadio('waitShutdown') === 'yes')  { showShutdownOutcome(SHUTDOWN_PRACTICABLE_TEXT); return; }
 
-    if (document.getElementById('operatingTemp').value === '') {
-        showAlert('Please enter the operating temperature of the medium');
-        return;
-    }
-    if (!document.getElementById('period').value) {
-        showAlert('Please select how long containment will be broken for');
-        return;
+    const fluidEl = document.getElementById('fluidSelect');
+    if (fluidEl.value === '') {
+        fluidEl.style.borderColor = 'red';
+        hasError = true;
+    } else {
+        fluidEl.style.borderColor = '';
     }
 
-    const unansweredQ = ['positiveIsoRisk', 'hotWork', 'cse', 'flareVentDrains', 'sbt', 'boundary']
-        .find(n => getRadio(n) === '');
-    if (unansweredQ) {
-        showAlert('Please answer all yes / no questions before continuing');
+    if (fluidEl.value === 'other') {
+        const otherNameEl = document.getElementById('otherFluidName');
+        if (!otherNameEl.value.trim()) {
+            otherNameEl.style.borderColor = 'red';
+            hasError = true;
+        } else {
+            otherNameEl.style.borderColor = '';
+        }
+    }
+
+    const tempEl = document.getElementById('operatingTemp');
+    if (tempEl.value === '') {
+        tempEl.style.borderColor = 'red';
+        hasError = true;
+    } else {
+        tempEl.style.borderColor = '';
+    }
+
+    const periodEl = document.getElementById('period');
+    if (!periodEl.value) {
+        periodEl.style.borderColor = 'red';
+        hasError = true;
+    } else {
+        periodEl.style.borderColor = '';
+    }
+
+    // Highlight any visible but unanswered question rows.
+    [['positiveIsoRisk', 'qPosIsoRisk'], ['hotWork', 'qHotWork'], ['cse', 'qCse'],
+     ['flareVentDrains', 'qFlareVentDrains'], ['sbt', 'qSbt'], ['boundary', 'qBoundary']]
+        .forEach(([name, rowId]) => {
+            const rowEl = document.getElementById(rowId);
+            if (!rowEl) return;
+            if (rowEl.style.display !== 'none' && getRadio(name) === '') {
+                rowEl.classList.add('q-error');
+                hasError = true;
+            } else {
+                rowEl.classList.remove('q-error');
+            }
+        });
+
+    if (hasError) {
+        showAlert('Please complete the highlighted fields before continuing.');
         return;
     }
 
@@ -357,16 +391,26 @@ function showShutdownOutcome(message) {
 
 // ── Main calculation ─────────────────────────────────────────────────────
 function getInputData() {
-    const lineDesc = document.getElementById('lineDesc').value;
-    if (!lineDesc) {
-        document.getElementById('lineDesc').style.borderColor = 'red';
-        showAlert('Please enter a description of the line');
-        return;
-    }
-    document.getElementById('lineDesc').style.borderColor = 'black';
+    let hasError = false;
 
-    if (!document.querySelector('input[name="isoTypeSelected"]:checked')) {
-        showAlert('Please select the highest standard of isolation that can reasonably be applied');
+    const lineDescEl = document.getElementById('lineDesc');
+    if (!lineDescEl.value.trim()) {
+        lineDescEl.style.borderColor = 'red';
+        hasError = true;
+    } else {
+        lineDescEl.style.borderColor = '';
+    }
+
+    const isoSectionEl = document.getElementById('isoTypeSection');
+    if (isoSectionEl.style.display !== 'none' && !document.querySelector('input[name="isoTypeSelected"]:checked')) {
+        isoSectionEl.classList.add('section-error');
+        hasError = true;
+    } else {
+        isoSectionEl.classList.remove('section-error');
+    }
+
+    if (hasError) {
+        showAlert('Please complete the highlighted fields before continuing.');
         return;
     }
 
@@ -401,7 +445,7 @@ function getInputData() {
     document.getElementById('outTemp').textContent = `${temp} °C`;
 
     document.getElementById('outDur').textContent = longDuration ? 'More than one shift' : 'One shift or less';
-    document.getElementById('outLineDesc').textContent = lineDesc;
+    document.getElementById('outLineDesc').textContent = lineDescEl.value;
     document.getElementById('outPosIsoRisk').textContent = positiveIsoRisk === 'yes' ? 'Yes' : 'No';
     document.getElementById('outHotWork').textContent  = hotWork ? 'Yes' : 'No';
     document.getElementById('outCSE').textContent      = cse ? 'Yes' : 'No';
@@ -547,6 +591,43 @@ function popitup(url) {
     if (window.focus) newwindow.focus();
 }
 
+// ── Contextual help popover content ─────────────────────────────────────────
+const HELP_CONTENT = {
+    temp: {
+        title: 'Temperature escalation',
+        content: 'Escalates the fluid group if the temperature is extreme. Above 60°C or below −10°C the fluid is treated as Group 1 (Highly Dangerous) regardless of its base group. Between 50–60°C or −10 to 0°C it is treated as Group 3. The tool always uses whichever is more onerous.',
+    },
+    duration: {
+        title: 'Containment broken duration',
+        content: 'This is not the total task duration — it is the exposure window if the isolation were to fail. If the work crosses a shift change or the pipework could be left open overnight, choose “More than one shift”.',
+    },
+    posIsoRisk: {
+        title: 'Positive isolation risk',
+        content: '<strong>No</strong> — a spade or disconnection can be safely achieved. The tool auto-applies Category I (positive isolation) and skips the isolation type picker in Stage 2.<br><br><strong>Yes</strong> — fitting or removing the spade is itself a greater risk than valve isolation (e.g. high-pressure service). Stage 2 will ask you to select the best valve isolation available.',
+        html: true,
+    },
+    hotWork: {
+        title: 'Hot work',
+        content: 'Any activity with spark potential or naked flame — grinding, cutting, welding, or nearby engines. Escalates Groups 1 and 2 to Category I only; has no effect on Groups 3 and 4.',
+    },
+    cse: {
+        title: 'Confined space entry (CSE)',
+        content: 'CSE always requires positive isolation (Category I) regardless of fluid group or duration. No other factor can reduce this requirement.',
+    },
+    flareVentDrains: {
+        title: 'Flare, LP vent or closed drains',
+        content: 'Where work is against a single valve on an LP flare, vent or closed drains system, a Category III isolation may be acceptable subject to additional controls. A Production Supervisor must confirm no abnormal plant conditions are expected.',
+    },
+    sbt: {
+        title: 'Instrument small-bore tubing (SBT)',
+        content: 'For instrument impulse line personal isolations only. Applies a reduced minimum — Category IIB for Fluid Groups 1 & 2, Category III for Groups 3 & 4. Double block valves should be used on impulse lines where available.',
+    },
+    boundary: {
+        title: 'Boundary isolation',
+        content: 'Where a boundary isolation is already in place around the work area, a single local valve (Category III) is sufficient for the personal isolation. The boundary isolation provides the primary protection.',
+    },
+};
+
 function init() {
     // Help page loads this script too but has none of these elements.
     const fluidSelect = document.getElementById('fluidSelect');
@@ -569,6 +650,7 @@ function init() {
     other.value = 'other';
     other.textContent = 'Other (enter manually)…';
     fluidSelect.appendChild(other);
+    fluidSelect.selectedIndex = 0;
 
     fluidSelect.addEventListener('change', toggleOtherFluid);
     toggleOtherFluid();
@@ -591,8 +673,9 @@ function init() {
     Object.keys(QUESTION_CHAIN).forEach(name => {
         document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
             radio.addEventListener('change', () => {
+                radio.closest('tr')?.classList.remove('q-error');
                 const next = document.getElementById(QUESTION_CHAIN[name]);
-                next.style.display = 'block';
+                next.style.display = next.tagName === 'TR' ? 'table-row' : 'block';
                 next.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 updateProgress();
                 if (name === 'boundary') {
@@ -604,11 +687,42 @@ function init() {
         });
     });
 
+    // Clear isolation type section error when user makes a selection.
+    document.querySelectorAll('input[name="isoTypeSelected"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.getElementById('isoTypeSection').classList.remove('section-error');
+        });
+    });
+
+    // Auto-clear red borders on text/select fields when user edits them.
+    ['isoTitle', 'operatingTemp', 'otherFluidName', 'lineDesc'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', function () { this.style.borderColor = ''; });
+    });
+    ['fluidSelect', 'period'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', function () { this.style.borderColor = ''; });
+    });
+
     document.getElementById('helpBtn').addEventListener('click', () => popitup('help.html'));
     document.getElementById('nextBtn').addEventListener('click', showSpec);
     document.getElementById('calcBtn').addEventListener('click', getInputData);
     document.getElementById('backBtn').addEventListener('click', goBack);
     document.getElementById('printBtn').addEventListener('click', printPDF);
+
+    // Popovers need Bootstrap to be fully loaded first. DOMContentLoaded fires
+    // after all deferred scripts (including Bootstrap) have executed.
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-help-key]').forEach(el => {
+            const help = HELP_CONTENT[el.getAttribute('data-help-key')];
+            if (!help) return;
+            new bootstrap.Popover(el, {
+                title: help.title,
+                content: help.content,
+                html: !!help.html,
+                trigger: 'hover focus',
+                placement: 'auto',
+            });
+        });
+    });
 }
 
 init();

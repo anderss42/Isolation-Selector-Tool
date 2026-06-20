@@ -64,30 +64,32 @@
                         <div class="form-group">
                             <h4>Front-end planning checks</h4>
 
-                            <p class="mb-1">Could a failure of this isolation lead to a major accident event?</p>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="majorAccident" id="majorAccidentYes"
-                                    value="yes" />
-                                <label for="majorAccidentYes" class="form-check-label">Yes</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="majorAccident" id="majorAccidentNo"
-                                    value="no" />
-                                <label for="majorAccidentNo" class="form-check-label">No</label>
-                            </div>
-
-                            <p class="mb-1" style="margin-top:10px;">Is it reasonably practicable to wait for / carry out
-                                a shutdown for this work?</p>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="waitShutdown" id="waitShutdownYes"
-                                    value="yes" />
-                                <label for="waitShutdownYes" class="form-check-label">Yes</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="waitShutdown" id="waitShutdownNo"
-                                    value="no" />
-                                <label for="waitShutdownNo" class="form-check-label">No</label>
-                            </div>
+                            <table class="q-table">
+                                <tbody>
+                                    <tr>
+                                        <td>Could a failure of this isolation lead to a major accident event?</td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="majorAccident" id="majorAccidentYes" value="yes" />
+                                            <label for="majorAccidentYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="majorAccident" id="majorAccidentNo" value="no" />
+                                            <label for="majorAccidentNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Is it reasonably practicable to wait for / carry out a shutdown for this work?</td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="waitShutdown" id="waitShutdownYes" value="yes" />
+                                            <label for="waitShutdownYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="waitShutdown" id="waitShutdownNo" value="no" />
+                                            <label for="waitShutdownNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <p id="gatingNotice"
                             style="display:none; color:red; font-weight:bold;">
@@ -100,11 +102,13 @@
                     <div id="restBlock" style="display:none;">
                         <p></p>
                         <div class="form-group">
-                            <label for="fluidSelect" class="form-label">What is the fluid being isolated?</label>
-                            <select id="fluidSelect" name="fluidSelect" class="form-select">
-                                <option hidden disabled selected value="">Select fluid</option>
-                                <!-- options injected by JS, grouped by fluid group, plus "Other" -->
-                            </select>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <label for="fluidSelect" class="form-label mb-0">What is the fluid being isolated?</label>
+                                <select id="fluidSelect" name="fluidSelect" class="form-select" style="max-width:260px;">
+                                    <option hidden disabled selected value="">Select fluid</option>
+                                    <!-- options injected by JS, grouped by fluid group, plus "Other" -->
+                                </select>
+                            </div>
                             <div id="otherFluidWrap" style="display:none; margin-top:8px;">
                                 <input id="otherFluidName" type="text" class="form-control"
                                     placeholder="Enter substance name" style="margin-bottom:6px;" />
@@ -120,98 +124,101 @@
 
                         <p></p>
                         <div class="form-group">
-                            <div class="input-append">
-                                <label for="operatingTemp" class="form-label">Operating temperature of the
-                                    medium:</label>
-                                <input id="operatingTemp" type="number" min="-100" max="500" step="1" class="span2" />
-                                <span class="add-on">°C</span>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <label for="operatingTemp" class="form-label mb-0">Operating temperature of the medium:</label>
+                                <button type="button" class="help-tip" data-help-key="temp">?</button>
+                                <div class="input-group flex-shrink-0" style="width:150px;">
+                                    <input id="operatingTemp" type="number" min="-100" max="500" step="1" class="form-control" />
+                                    <span class="input-group-text">°C</span>
+                                </div>
                             </div>
-                            <small class="text-muted">A high or low temperature can escalate the fluid group.</small>
                         </div>
 
                         <br>
                         <div class="form-group">
-                            <label for="period">How long will containment be broken for:</label>
-                            <select id="period" name="period" size="1" class="inputField" value="">
-                                <option hidden disabled selected value> Select duration </option>
-                                <option value="oneOrLess">One shift or less</option>
-                                <option value="moreThanShift">More than one shift</option>
-                            </select>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <label for="period" class="form-label mb-0">How long will containment be broken for:</label>
+                                <button type="button" class="help-tip" data-help-key="duration">?</button>
+                                <select id="period" name="period" class="form-select" style="max-width:220px;">
+                                    <option hidden disabled selected value> Select duration </option>
+                                    <option value="oneOrLess">One shift or less</option>
+                                    <option value="moreThanShift">More than one shift</option>
+                                </select>
+                            </div>
                         </div>
 
                         <br>
                         <div class="form-group">
-                            <div id="qPosIsoRisk">
-                                <p class="mb-1">Is the risk from the installation and removal of positive isolation greater than using a valve isolation?</p>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="positiveIsoRisk" id="positiveIsoRiskYes" value="yes" />
-                                    <label for="positiveIsoRiskYes" class="form-check-label">Yes</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="positiveIsoRisk" id="positiveIsoRiskNo" value="no" />
-                                    <label for="positiveIsoRiskNo" class="form-check-label">No</label>
-                                </div>
-                            </div>
-
-                            <div id="qHotWork" style="display:none; margin-top:10px;">
-                                <p class="mb-1">Is hot work involved (spark potential or naked flame, in the task or vicinity)?</p>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="hotWork" id="hotWorkYes" value="yes" />
-                                    <label for="hotWorkYes" class="form-check-label">Yes</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="hotWork" id="hotWorkNo" value="no" />
-                                    <label for="hotWorkNo" class="form-check-label">No</label>
-                                </div>
-                            </div>
-
-                            <div id="qCse" style="display:none; margin-top:10px;">
-                                <p class="mb-1">Is this for confined space entry?</p>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="cse" id="cseYes" value="yes" />
-                                    <label for="cseYes" class="form-check-label">Yes</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="cse" id="cseNo" value="no" />
-                                    <label for="cseNo" class="form-check-label">No</label>
-                                </div>
-                            </div>
-
-                            <div id="qFlareVentDrains" style="display:none; margin-top:10px;">
-                                <p class="mb-1">Is this a flare, LP vent or closed drains system?</p>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="flareVentDrains" id="flareVentDrainsYes" value="yes" />
-                                    <label for="flareVentDrainsYes" class="form-check-label">Yes</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="flareVentDrains" id="flareVentDrainsNo" value="no" />
-                                    <label for="flareVentDrainsNo" class="form-check-label">No</label>
-                                </div>
-                            </div>
-
-                            <div id="qSbt" style="display:none; margin-top:10px;">
-                                <p class="mb-1">Is this an instrument small-bore tubing (SBT) personal isolation?</p>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="sbt" id="sbtYes" value="yes" />
-                                    <label for="sbtYes" class="form-check-label">Yes</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="sbt" id="sbtNo" value="no" />
-                                    <label for="sbtNo" class="form-check-label">No</label>
-                                </div>
-                            </div>
-
-                            <div id="qBoundary" style="display:none; margin-top:10px;">
-                                <p class="mb-1">Is this within a boundary isolation?</p>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="boundary" id="boundaryYes" value="yes" />
-                                    <label for="boundaryYes" class="form-check-label">Yes</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="boundary" id="boundaryNo" value="no" />
-                                    <label for="boundaryNo" class="form-check-label">No</label>
-                                </div>
-                            </div>
+                            <table class="q-table">
+                                <tbody>
+                                    <tr id="qPosIsoRisk">
+                                        <td>Is the risk from the installation and removal of positive isolation greater than using a valve isolation? <button type="button" class="help-tip" data-help-key="posIsoRisk">?</button></td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="positiveIsoRisk" id="positiveIsoRiskYes" value="yes" />
+                                            <label for="positiveIsoRiskYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="positiveIsoRisk" id="positiveIsoRiskNo" value="no" />
+                                            <label for="positiveIsoRiskNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                    <tr id="qHotWork" style="display:none;">
+                                        <td>Is hot work involved (spark potential or naked flame, in the task or vicinity)? <button type="button" class="help-tip" data-help-key="hotWork">?</button></td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="hotWork" id="hotWorkYes" value="yes" />
+                                            <label for="hotWorkYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="hotWork" id="hotWorkNo" value="no" />
+                                            <label for="hotWorkNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                    <tr id="qCse" style="display:none;">
+                                        <td>Is this for confined space entry? <button type="button" class="help-tip" data-help-key="cse">?</button></td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="cse" id="cseYes" value="yes" />
+                                            <label for="cseYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="cse" id="cseNo" value="no" />
+                                            <label for="cseNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                    <tr id="qFlareVentDrains" style="display:none;">
+                                        <td>Is this a flare, LP vent or closed drains system? <button type="button" class="help-tip" data-help-key="flareVentDrains">?</button></td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="flareVentDrains" id="flareVentDrainsYes" value="yes" />
+                                            <label for="flareVentDrainsYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="flareVentDrains" id="flareVentDrainsNo" value="no" />
+                                            <label for="flareVentDrainsNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                    <tr id="qSbt" style="display:none;">
+                                        <td>Is this an instrument small-bore tubing (SBT) personal isolation? <button type="button" class="help-tip" data-help-key="sbt">?</button></td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="sbt" id="sbtYes" value="yes" />
+                                            <label for="sbtYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="sbt" id="sbtNo" value="no" />
+                                            <label for="sbtNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                    <tr id="qBoundary" style="display:none;">
+                                        <td>Is this within a boundary isolation? <button type="button" class="help-tip" data-help-key="boundary">?</button></td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="boundary" id="boundaryYes" value="yes" />
+                                            <label for="boundaryYes" class="form-check-label">Yes</label>
+                                        </td>
+                                        <td class="q-radio-cell">
+                                            <input type="radio" class="form-check-input" name="boundary" id="boundaryNo" value="no" />
+                                            <label for="boundaryNo" class="form-check-label">No</label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
                         <div id="iccBlock" style="display:none;">
@@ -264,7 +271,7 @@
 
                 <div id="isoTypeSection">
                     <h4>
-                        What is the highest standard of isolation that can be reasonably applied?
+                        What is the highest standard of valve isolation that can be applied?
                     </h4>
                     <div id="spadeOption">
                         <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />

@@ -99,20 +99,26 @@
                 </tr>
                 <tr>
                     <th scope="row">6</th>
-                    <td>Hot work, CSE, exemptions and boundary switches</td>
-                    <td>Toggle these as applicable:
+                    <td>Yes / No questions</td>
+                    <td>Six Yes/No questions are revealed one at a time as each is answered. Answer each in turn:
                         <ul>
-                            <li><strong>Hot work</strong> — spark potential or naked flame, in the task or vicinity
-                                (escalates Fluid Groups 1 &amp; 2).</li>
-                            <li><strong>Confined space entry</strong> — forces a Category I (positive isolation)
-                                requirement.</li>
-                            <li><strong>Flare, LP vent or closed drains</strong> — exemption giving a Category III
-                                (single unproven valve on the LP side).</li>
-                            <li><strong>Instrument small-bore tubing (SBT)</strong> — exemption; Category IIB for Groups
-                                1 &amp; 2, Category III for Groups 3 &amp; 4.</li>
-                            <li><strong>Within a boundary isolation</strong> — single valve locally is sufficient
-                                (Category III) because a boundary isolation is already in place.</li>
+                            <li><strong>Is the risk from the installation and removal of positive isolation greater than using a valve isolation?</strong>
+                                — If <em>No</em>, positive isolation (spade or disconnection) will be auto-applied and no isolation type selection is required in Stage 2.
+                                If <em>Yes</em>, you will be asked to select the best available valve isolation in Stage 2.</li>
+                            <li><strong>Hot work</strong> — spark potential or naked flame, in the task or vicinity.
+                                Escalates the minimum required category to I for Fluid Groups 1 &amp; 2.</li>
+                            <li><strong>Confined space entry (CSE)</strong> — forces a Category I (positive isolation)
+                                requirement regardless of fluid group or duration.</li>
+                            <li><strong>Flare, LP vent or closed drains</strong> — where work is against a single valve
+                                on an LP flare, vent or closed drains system, a Category III isolation may be acceptable
+                                subject to additional controls.</li>
+                            <li><strong>Instrument small-bore tubing (SBT) personal isolation</strong> — for instrument
+                                impulse line isolations; minimum Category IIB for Groups 1 &amp; 2, Category III for
+                                Groups 3 &amp; 4.</li>
+                            <li><strong>Within a boundary isolation</strong> — where a boundary isolation is already in
+                                place, a single local valve (Category III) is sufficient.</li>
                         </ul>
+                        The ICC number field and the Next button appear once all six questions have been answered.
                     </td>
                 </tr>
                 <tr>
@@ -136,8 +142,20 @@
                 <tr>
                     <th scope="row">10</th>
                     <td>Highest standard of isolation that can reasonably be applied</td>
-                    <td>Select the best isolation you can actually apply, assessing positive isolation (spade) first and
-                        then the best available valved isolation. Click the appropriate icon.</td>
+                    <td>This section only appears if you answered <em>Yes</em> to the positive isolation risk question in
+                        Stage 1. If you answered <em>No</em>, positive isolation (spade or disconnection) is
+                        automatically applied and no selection is required here.
+                        <br><br>
+                        Where a selection is required, choose the best valve isolation you can physically apply at this
+                        point. The options available are, in descending order of strength:
+                        <ul>
+                            <li><strong>Category IIA — Proven Double Block and Bleed (DBB)</strong></li>
+                            <li><strong>Category IIA — Proven Twin Seal Valve</strong></li>
+                            <li><strong>Category IIB — Proven Single Block and Bleed (SBB)</strong></li>
+                            <li><strong>Category III — Non-Proven Single or Double Valve</strong></li>
+                        </ul>
+                        Click the icon for the highest standard you can apply. Spade is not directly selectable here
+                        as it is handled by the positive isolation risk question.</td>
                 </tr>
                 <tr>
                     <th scope="row">11</th>
@@ -159,8 +177,10 @@
                     <td>
                         <ul>
                             <li><strong>I</strong> — Positive isolation: spade or disconnection.</li>
-                            <li><strong>IIA</strong> — Proven Double Block and Bleed (DBB) or double seal valve with body
-                                bleed.</li>
+                            <li><strong>IIA</strong> — Proven Double Block and Bleed (DBB): double valve arrangement
+                                with body bleed.</li>
+                            <li><strong>IIA</strong> — Proven Twin Seal Valve: valve with integrated twin seals and
+                                body bleed (equivalent strength to DBB).</li>
                             <li><strong>IIB</strong> — Proven leak-tight Single Block and Bleed (SBB).</li>
                             <li><strong>III</strong> — Non-proven single or double valve (double preferred if
                                 available).</li>

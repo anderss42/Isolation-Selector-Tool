@@ -1,29 +1,100 @@
 <!doctype html>
 <html lang="en">
 
+<!--
+════════════════════════════════════════════════════════════════════════════
+  Isolation Selector Tool — index.html
+════════════════════════════════════════════════════════════════════════════
+
+  PURPOSE
+  -------
+  This is the single page that the user opens in their browser. It contains
+  all the HTML structure (forms, output card, modals). All the logic and
+  decision-making is in JS/main.js.
+
+  HOW TO OPEN THE TOOL
+  --------------------
+  Just open this file directly in a web browser (Chrome, Edge, etc.).
+  No server, no installation, no build step is needed.
+
+  FILES REFERENCED HEREd
+  ---------------------
+  JS/main.js       — all application logic (see that file for documentation)
+  CSS/stlyes.css   — stylesheet (NOTE: the filename has a deliberate typo —
+                     "stlyes" not "styles". Do NOT rename it without also
+                     updating this file and help.html.)
+  imgs/            — P&ID diagram images and icons used in the output
+
+  EXTERNAL LIBRARIES (loaded from the internet via CDN)
+  -------------------------------------------------------
+  Bootstrap 5.3   — layout framework and UI components (buttons, forms, modals)
+  jsPDF 2.5.1     — creates PDF files in the browser
+  html2canvas 1.4.1 — takes a "screenshot" of the output card for the PDF
+
+  STRUCTURE OF THIS PAGE
+  ----------------------
+  1. <head>      — loads libraries and stylesheets
+  2. #header     — TAQA logo and tool title
+  3. #inputSection
+       ├── Left column: #systemProperties form (Stage 1)
+       │     ├── Title field (always visible)
+       │     ├── #gatingBlock — front-end planning checks (revealed after title)
+       │     └── #restBlock   — fluid, temp, duration + 6 Yes/No questions
+       │                        (revealed when both planning checks are "No")
+       └── Right column: #lineSpecificationDiv (Stage 2, revealed by "Next")
+             ├── Line description field
+             └── #isoTypeSection — isolation type picker (may be hidden)
+  4. #outCard    — output card (hidden until Calculate is clicked)
+  5. #alertModal — validation message popup
+  6. #nameModal  — "enter your name" popup before saving PDF
+════════════════════════════════════════════════════════════════════════════
+-->
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Isolation Selector Tool</title>
+
+    <!-- Bootstrap CSS — provides the layout grid, button styles, form styles,
+         and the modal (popup dialog) functionality. Do not remove. -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <!-- main.js — all the tool's logic. "defer" means it runs after the HTML
+         is parsed but before DOMContentLoaded fires. -->
     <script defer src="JS/main.js"></script>
+
+    <!-- Bootstrap JavaScript bundle — required for the modal popups and
+         popovers (the "?" help tooltips). Must load AFTER main.js in the
+         defer queue so Bootstrap is available when main.js sets up popovers. -->
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
+
+    <!-- Tool stylesheet. NOTE: filename is "stlyes" (typo), not "styles".
+         Do not rename the file without also updating help.html. -->
     <link rel="stylesheet" href="CSS/stlyes.css">
 
+    <!-- jsPDF — used by printPDF() in main.js to generate the PDF file. -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- html2canvas — used by printPDF() to render the output card as an image
+         before placing it in the PDF. -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
 
     <div class="container-fluid">
-        <!-- Header with images-->
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             HEADER — logos and title bar
+             Hidden while the output card is shown (see revealOutput() in main.js)
+             ═══════════════════════════════════════════════════════════════ -->
         <div class="row" id="header">
             <div class="col-md-12">
                 <div class="d-flex justify-content-end">
+                    <!-- Opens help.html in a small popup window -->
                     <button type="button" class="btn btn-outline-primary" id="helpBtn">Help</button>
                 </div>
                 <div class="row">
@@ -43,14 +114,26 @@
         </div>
 
 
-        <div id="inputSection" class="row"> <!-- Input section-->
-            <!-- System Properties form-->
+        <!-- ═══════════════════════════════════════════════════════════════
+             INPUT SECTION — the two-column form area
+             This is the main working area, hidden once Calculate is pressed.
+             Left column = Stage 1 (System Properties)
+             Right column = Stage 2 (Line Specification), revealed by "Next"
+             ═══════════════════════════════════════════════════════════════ -->
+        <div id="inputSection" class="row">
+
+            <!-- ─────────────────────────────────────────────────────────
+                 LEFT COLUMN — Stage 1: System Properties form
+                 ───────────────────────────────────────────────────────── -->
             <div class="col-lg-6">
                 <h3>
                     System Properties
                 </h3>
                 <form role="form" id="systemProperties">
-                    <!-- Step 1 — always visible -->
+
+                    <!-- STEP 1 — Title field (always visible on page load)
+                         The user describes what is being isolated and why.
+                         Typing here triggers the progressive reveal (see updateProgress() in main.js). -->
                     <div class="form-group">
                         <label for="isoTitle">
                             What is being isolated and why?
@@ -58,14 +141,21 @@
                         <input type="text" class="form-control" id="isoTitle" name="isoTitle" required />
                     </div>
 
-                    <!-- Step 2 — front-end planning checks, revealed once a title is entered -->
+                    <!-- STEP 2 — Front-end planning checks
+                         Only shown once a title has been entered (controlled by updateProgress()).
+                         These two questions gate the entire rest of the form:
+                           — If EITHER is "Yes" → shutdown record path, rest of form is skipped
+                           — If BOTH are "No"  → #restBlock is revealed and normal path continues -->
                     <div id="gatingBlock" style="display:none;">
                         <p></p>
                         <div class="form-group">
                             <h4>Front-end planning checks</h4>
 
+                            <!-- q-table class gives these question rows a consistent layout
+                                 with fixed-width Yes/No radio columns. See CSS/stlyes.css. -->
                             <table class="q-table">
                                 <tbody>
+                                    <!-- Planning check 1: major accident risk -->
                                     <tr>
                                         <td>Could a failure of this isolation lead to a major accident event?</td>
                                         <td class="q-radio-cell">
@@ -77,6 +167,7 @@
                                             <label for="majorAccidentNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+                                    <!-- Planning check 2: can we wait for a shutdown? -->
                                     <tr>
                                         <td>Is it reasonably practicable to wait for / carry out a shutdown for this work?</td>
                                         <td class="q-radio-cell">
@@ -91,6 +182,9 @@
                                 </tbody>
                             </table>
                         </div>
+                        <!-- Warning shown when either planning check is "Yes".
+                             The "Next" button still appears so the user can record
+                             the shutdown outcome. -->
                         <p id="gatingNotice"
                             style="display:none; color:red; font-weight:bold;">
                             A shutdown is required for this work — isolation selection is not appropriate. Press Next to
@@ -98,17 +192,28 @@
                         </p>
                     </div>
 
-                    <!-- Step 3 — the rest, revealed once both planning checks are answered "No" -->
+                    <!-- STEP 3 — Rest of Stage 1
+                         Only revealed when both planning checks above are "No".
+                         Contains: fluid dropdown, temperature, duration, and the
+                         six Yes/No questions revealed one at a time. -->
                     <div id="restBlock" style="display:none;">
                         <p></p>
+
+                        <!-- Fluid dropdown
+                             The <option> tags inside are inserted automatically by JavaScript
+                             (from the FLUIDS array in main.js). To add/remove fluids, edit
+                             the FLUIDS array in main.js — not this HTML. -->
                         <div class="form-group">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <label for="fluidSelect" class="form-label mb-0">What is the fluid being isolated?</label>
                                 <select id="fluidSelect" name="fluidSelect" class="form-select" style="max-width:260px;">
                                     <option hidden disabled selected value="">Select fluid</option>
-                                    <!-- options injected by JS, grouped by fluid group, plus "Other" -->
+                                    <!-- Options are injected here by init() in main.js,
+                                         grouped by fluid group, with "Other" added at the end. -->
                                 </select>
                             </div>
+                            <!-- "Other" fluid fields — hidden unless "Other" is selected.
+                                 The user types a substance name and picks a group manually. -->
                             <div id="otherFluidWrap" style="display:none; margin-top:8px;">
                                 <input id="otherFluidName" type="text" class="form-control"
                                     placeholder="Enter substance name" style="margin-bottom:6px;" />
@@ -123,6 +228,11 @@
                         </div>
 
                         <p></p>
+
+                        <!-- Operating temperature field
+                             The "?" button opens a Bootstrap popover explaining temperature
+                             escalation (content defined in HELP_CONTENT in main.js).
+                             The input-group puts the "°C" unit label flush against the number input. -->
                         <div class="form-group">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <label for="operatingTemp" class="form-label mb-0">Operating temperature of the medium:</label>
@@ -135,6 +245,10 @@
                         </div>
 
                         <br>
+
+                        <!-- Duration dropdown
+                             "One shift or less" or "More than one shift".
+                             This affects the required category for Groups 2, 3 and 4. -->
                         <div class="form-group">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <label for="period" class="form-label mb-0">How long will containment be broken for:</label>
@@ -148,9 +262,28 @@
                         </div>
 
                         <br>
+
+                        <!-- Six Yes/No questions — progressive disclosure
+                             Each question is a <tr> row. Only the first question
+                             (positiveIsoRisk, id="qPosIsoRisk") is visible initially.
+                             The rest start hidden and are revealed one at a time via
+                             the QUESTION_CHAIN event listeners in init() (main.js).
+
+                             IMPORTANT: These are <tr> elements, so their display value
+                             must be set to 'table-row' (not 'block') to show them.
+                             The JavaScript in main.js handles this automatically.
+
+                             Each "?" button opens a popover — content is in HELP_CONTENT
+                             in main.js. The data-help-key attribute links the button to
+                             its content entry.
+
+                             TO CHANGE QUESTION WORDING: edit the text inside the <td>.
+                             TO ADD/REMOVE QUESTIONS: see QUESTION_CHAIN in main.js. -->
                         <div class="form-group">
                             <table class="q-table">
                                 <tbody>
+
+                                    <!-- Q1: Positive isolation risk — always visible in #restBlock -->
                                     <tr id="qPosIsoRisk">
                                         <td>Is the risk from the installation and removal of positive isolation greater than using a valve isolation? <button type="button" class="help-tip" data-help-key="posIsoRisk">?</button></td>
                                         <td class="q-radio-cell">
@@ -162,6 +295,8 @@
                                             <label for="positiveIsoRiskNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+
+                                    <!-- Q2: Hot work — revealed after Q1 is answered -->
                                     <tr id="qHotWork" style="display:none;">
                                         <td>Is hot work involved (spark potential or naked flame, in the task or vicinity)? <button type="button" class="help-tip" data-help-key="hotWork">?</button></td>
                                         <td class="q-radio-cell">
@@ -173,6 +308,8 @@
                                             <label for="hotWorkNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+
+                                    <!-- Q3: Confined space entry — revealed after Q2 is answered -->
                                     <tr id="qCse" style="display:none;">
                                         <td>Is this for confined space entry? <button type="button" class="help-tip" data-help-key="cse">?</button></td>
                                         <td class="q-radio-cell">
@@ -184,6 +321,8 @@
                                             <label for="cseNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+
+                                    <!-- Q4: Flare / LP vent / closed drains — revealed after Q3 -->
                                     <tr id="qFlareVentDrains" style="display:none;">
                                         <td>Is this a flare, LP vent or closed drains system? <button type="button" class="help-tip" data-help-key="flareVentDrains">?</button></td>
                                         <td class="q-radio-cell">
@@ -195,6 +334,8 @@
                                             <label for="flareVentDrainsNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+
+                                    <!-- Q5: Small-bore tubing (SBT) — revealed after Q4 -->
                                     <tr id="qSbt" style="display:none;">
                                         <td>Is this an instrument small-bore tubing (SBT) personal isolation? <button type="button" class="help-tip" data-help-key="sbt">?</button></td>
                                         <td class="q-radio-cell">
@@ -206,6 +347,9 @@
                                             <label for="sbtNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+
+                                    <!-- Q6: Boundary isolation — revealed after Q5.
+                                         Answering this reveals the ICC number field (#iccBlock). -->
                                     <tr id="qBoundary" style="display:none;">
                                         <td>Is this within a boundary isolation? <button type="button" class="help-tip" data-help-key="boundary">?</button></td>
                                         <td class="q-radio-cell">
@@ -217,10 +361,15 @@
                                             <label for="boundaryNo" class="form-check-label">No</label>
                                         </td>
                                     </tr>
+
                                 </tbody>
                             </table>
                         </div>
 
+                        <!-- ICC number field — revealed after all six questions are answered.
+                             This is a <div> (not a <tr>), so display is set to 'block' not
+                             'table-row'. The JavaScript in main.js handles this distinction.
+                             The ICC number is optional — if entered, it appears in the PDF filename. -->
                         <div id="iccBlock" style="display:none;">
                             <p></p>
                             <div class="form-group">
@@ -231,8 +380,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div><!-- /restBlock -->
 
+                    <!-- "Next" button — hidden until all questions are answered (or a
+                         planning check is "Yes"). Clicking calls showSpec() in main.js. -->
                     <div class="row">
                         <div class="col-4">
                             <button type="button" class="btn btn-outline-primary block" id="nextBtn"
@@ -240,88 +391,127 @@
                         </div>
                     </div>
                 </form>
-            </div>
+            </div><!-- /left column -->
 
 
-        <!-- Line specifications-->
-        <div class="col-lg-6" id="lineSpecificationDiv" style="display:none;">
-            <!--<h3 id="specNo"></h3> Not used at present gets a bit complicated. 
-                If there is only 1 line then this will be disabled
-                If line number is 1 then back will be disabled
-                If line number is Max then then FWD will be disabled
-                <button type="button" class="btn btn-primary" onclick="backLine()">Back</button>
-                <button type="button" class="btn btn-primary" onclick="nextLine()">Next</button>
-                <When the button is pressed then it will save everything entered so far into the matrix.
-            -->
+            <!-- ─────────────────────────────────────────────────────────
+                 RIGHT COLUMN — Stage 2: Line Specification form
+                 Hidden until "Next" is clicked (showSpec() in main.js reveals it).
+                 ───────────────────────────────────────────────────────── -->
+            <div class="col-lg-6" id="lineSpecificationDiv" style="display:none;">
 
+                <!--
+                    NOTE: The multi-line feature (numOfLines, nextLine, backLine) was
+                    removed. The commented-out code below is left as a historical record
+                    but should NOT be re-enabled without understanding the full flow.
+                    <h3 id="specNo"></h3>
+                    <button type="button" class="btn btn-primary" onclick="backLine()">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextLine()">Next</button>
+                -->
 
-            <form role="form" id="spec">
-                <br style="height: 20px;">
+                <form role="form" id="spec">
+                    <br style="height: 20px;">
 
-                <div class="form-group" id="lineHide">
-                    <label for="lineDesc" class="form-label" style="padding-top:9px">Enter description of the
-                        line / isolation point:</label>
-                    <input id="lineDesc" type="text" class="form-control" style="font-size:16px; padding-top:7px"
-                        required>
-                    <p></p>
-                </div>
-                <div id="posIsoNotice" style="display:none; margin-bottom:10px;">
-                    <p style="font-style:italic; color:#555;">Positive isolation (spade or disconnection) will be applied — no isolation type selection required.</p>
-                </div>
-
-                <div id="isoTypeSection">
-                    <h4>
-                        What is the highest standard of valve isolation that can be applied?
-                    </h4>
-                    <div id="spadeOption">
-                        <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />
-                        <label for="spade">
-                            <img src="imgs/spade.png" alt="Positive isolation - Spade or disconnection" />
-                            <span>Category I — Positive isolation - Spade or disconnection</span>
-                        </label>
+                    <!-- Line / isolation point description -->
+                    <div class="form-group" id="lineHide">
+                        <label for="lineDesc" class="form-label" style="padding-top:9px">Enter description of the
+                            line / isolation point:</label>
+                        <input id="lineDesc" type="text" class="form-control" style="font-size:16px; padding-top:7px"
+                            required>
+                        <p></p>
                     </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="dbb" class="input-hidden" value="dbb" />
-                        <label for="dbb">
-                            <img src="imgs/dbb.png" alt="Double block and bleed" />
-                            <span>Category IIA — Proven Double Block and Bleed (DBB)</span>
-                        </label>
-                    </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="twin_seal" class="input-hidden" value="twin_seal" />
-                        <label for="twin_seal">
-                            <img src="imgs/twin_seal.png" alt="Twin seal valve" />
-                            <span>Category IIA — Proven Twin Seal Valve</span>
-                        </label>
-                    </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="sbb" class="input-hidden" value="sbb" />
-                        <label for="sbb">
-                            <img src="imgs/sbb.png" alt="Single block and bleed" />
-                            <span>Category IIB — Proven Single Block and Bleed (SBB)</span>
-                        </label>
-                    </div>
-                    <div>
-                        <input type="radio" name="isoTypeSelected" id="single" class="input-hidden" value="single" />
-                        <label for="single">
-                            <img src="imgs/single.png" alt="Single unproved" />
-                            <span>Category III — Non-Proven Single or Double Valve</span>
-                        </label>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    </div>
 
+                    <!-- Positive isolation notice — shown instead of the picker when
+                         positiveIsoRisk = 'no' (spade is auto-applied, no user choice needed). -->
+                    <div id="posIsoNotice" style="display:none; margin-bottom:10px;">
+                        <p style="font-style:italic; color:#555;">Positive isolation (spade or disconnection) will be applied — no isolation type selection required.</p>
+                    </div>
+
+                    <!-- Isolation type picker — shown only when positiveIsoRisk = 'yes'.
+                         The user selects the BEST isolation they can physically achieve.
+                         This is then compared to the minimum required category.
+
+                         IMPORTANT: The spade option (#spadeOption) is ALWAYS hidden from
+                         the user in Stage 2. It is only ever selected programmatically
+                         (by showSpec() in main.js when positiveIsoRisk = 'no').
+                         Users never choose a spade here — either it's auto-applied
+                         (when posRisk = no) or not applicable (when posRisk = yes).
+
+                         The radio buttons use class "input-hidden" and are styled via CSS
+                         so that clicking the image/label selects the radio. The images
+                         are sized in CSS under #isoTypeSection. -->
+                    <div id="isoTypeSection">
+                        <h4>
+                            What is the highest standard of valve isolation that can be applied?
+                        </h4>
+
+                        <!-- Spade — always hidden in Stage 2; only set by JS -->
+                        <div id="spadeOption">
+                            <input type="radio" name="isoTypeSelected" id="spade" class="input-hidden" value="spade" />
+                            <label for="spade">
+                                <img src="imgs/spade.png" alt="Positive isolation - Spade or disconnection" />
+                                <span>Category I — Positive isolation - Spade or disconnection</span>
+                            </label>
+                        </div>
+
+                        <!-- DBB — Category IIA -->
+                        <div>
+                            <input type="radio" name="isoTypeSelected" id="dbb" class="input-hidden" value="dbb" />
+                            <label for="dbb">
+                                <img src="imgs/dbb.png" alt="Double block and bleed" />
+                                <span>Category IIA — Proven Double Block and Bleed (DBB)</span>
+                            </label>
+                        </div>
+
+                        <!-- Twin Seal Valve — also Category IIA (same strength as DBB,
+                             but shown separately as it's a distinct physical arrangement) -->
+                        <div>
+                            <input type="radio" name="isoTypeSelected" id="twin_seal" class="input-hidden" value="twin_seal" />
+                            <label for="twin_seal">
+                                <img src="imgs/twin_seal.png" alt="Twin seal valve" />
+                                <span>Category IIA — Proven Twin Seal Valve</span>
+                            </label>
+                        </div>
+
+                        <!-- SBB — Category IIB -->
+                        <div>
+                            <input type="radio" name="isoTypeSelected" id="sbb" class="input-hidden" value="sbb" />
+                            <label for="sbb">
+                                <img src="imgs/sbb.png" alt="Single block and bleed" />
+                                <span>Category IIB — Proven Single Block and Bleed (SBB)</span>
+                            </label>
+                        </div>
+
+                        <!-- Single (non-proven) valve — Category III (weakest) -->
+                        <div>
+                            <input type="radio" name="isoTypeSelected" id="single" class="input-hidden" value="single" />
+                            <label for="single">
+                                <img src="imgs/single.png" alt="Single unproved" />
+                                <span>Category III — Non-Proven Single or Double Valve</span>
+                            </label>
+                        </div>
+                    </div><!-- /isoTypeSection -->
+                </form>
+            </div><!-- /right column -->
+
+        </div><!-- /inputSection -->
+    </div><!-- /container-fluid -->
+
+
+    <!-- Calculate and Back/Print buttons — outside the two-column container
+         so they span the full page width underneath. -->
     <div class="container">
         <div class="row">
             <div class="col-10">
+                <!-- Calculate button — hidden until Stage 2 is shown.
+                     Clicking calls getInputData() in main.js. -->
                 <button type="button" class="btn btn-outline-primary block text-center"
                     style="display:none;" id="calcBtn">Calculate
                 </button>
             </div>
 
+            <!-- Back button — shown only on the output screen.
+                 Clicking calls goBack() in main.js, returning to the input form. -->
             <button type="button" class="btn btn-outline-primary block" style="display:none;"
                 id="backBtn">Return to input data
             </button>
@@ -330,7 +520,18 @@
 
 
 
-    <!-- Output Section-->
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         OUTPUT CARD (#outCard)
+         Hidden until Calculate (or a shutdown short-circuit) is triggered.
+         Populated entirely by JavaScript — no user editing needed here.
+
+         Structure:
+           ├── Header row (logo + "Isolation Selector Tool Outcome" title)
+           ├── Two-column summary table (inputs echo'd back)
+           ├── #comparisonSection — side-by-side: required vs selected isolation
+           ├── Outcome row — stop/caution icon + result text + authorisation note
+           └── #controlsFooter — isolation controls list + preparation requirements
+         ═══════════════════════════════════════════════════════════════════════ -->
 
     <div class="container">
         <div class="card border border-primary rounded" style="display:none;" id="outCard">
@@ -348,6 +549,9 @@
             <div class="card-body">
                 <p class="card-text">
 
+                <!-- Two-column summary table — echoes the user's inputs back.
+                     All <td id="outXxx"> cells are filled in by getInputData() / showShutdownOutcome().
+                     The cell highlighted red+bold is the one that drove the required category. -->
                 <div class="row">
                     <div class="col-md-6 d-flex">
                         <table class="out-table">
@@ -368,10 +572,8 @@
                                     <th scope="row">Containment broken duration:</th>
                                     <td id="outDur"></td>
                                 </tr>
-
                             </tbody>
                         </table>
-
                     </div>
                     <div class="col-md-6 d-flex">
                         <table class="out-table">
@@ -404,14 +606,15 @@
                                     <th scope="row">Isolation Selected:</th>
                                     <td id="outIsoSel"></td>
                                 </tr>
-
                             </tbody>
                         </table>
-
                     </div>
                 </div>
                 </p>
 
+                <!-- Side-by-side comparison: required isolation vs selected isolation.
+                     Hidden in the shutdown short-circuit path (showShutdownOutcome hides it).
+                     Images are set by getInputData() from CATEGORY_INFO and ISO_INFO in main.js. -->
                 <div id="comparisonSection">
                 <div class="row">
                     <div class="col-md-6">
@@ -425,9 +628,13 @@
                         <p id="outIsoSelText"></p>
                     </div>
                 </div>
-                </div> <!-- /comparisonSection -->
+                </div><!-- /comparisonSection -->
 
-                <div class="row"> <!-- This section gives the output icon and a message next to it-->
+                <!-- Outcome row — stop/caution icon + result message + authorisation text.
+                     #outImg is set to imgs/stop.png (red) or imgs/caution.png (amber).
+                     #isoOutcome holds the main outcome sentence (filled by JS).
+                     #authGuidance shows who must authorise a deviation (filled by JS, red bold). -->
+                <div class="row">
                     <div class="col-2">
                         <img id=outImg src="" alt="" height="95px" width="95px">
                     </div>
@@ -437,7 +644,13 @@
                     </div>
                 </div>
 
-            </div>
+            </div><!-- /card-body -->
+
+            <!-- Controls footer — shown below the outcome.
+                 Hidden in the shutdown short-circuit path.
+                 listControl1–6 hold the isolation controls (set by setControls() in main.js).
+                 prepControl1–4 hold the preparation requirements (set by getInputData()).
+                 Unused control slots are left blank (not hidden). -->
             <div class="card-footer" id="controlsFooter">
                 <ul><span id="controlsHeading">Isolation Controls required are:</span>
                     <li id="listControl1"></li>
@@ -455,14 +668,28 @@
                     <li id="prepControl4"></li>
                 </ul>
             </div>
-            <p id="preparedBy" class="text-center"></p>
-        </div>
 
+            <!-- "Prepared by" line — added to the card just before PDF export.
+                 Filled in by printPDF() with the name entered in the name modal. -->
+            <p id="preparedBy" class="text-center"></p>
+        </div><!-- /outCard -->
+
+        <!-- Save as PDF button — shown alongside the Back button on the output screen.
+             Clicking calls printPDF() in main.js. -->
         <button type="button" class="btn btn-outline-primary block" id="printBtn"
             style="display:none;">Save as PDF</button>
-    </div>
+    </div><!-- /container -->
 
-    <!-- Alert / information modal (replaces browser alert) -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODALS (pop-up dialogs)
+         These replace the browser's built-in alert() and prompt() functions.
+         They are controlled by showAlert() and showNamePrompt() in main.js.
+         Bootstrap handles showing/hiding them.
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Alert modal — used for validation error messages ("Please complete...").
+         The title and body are set dynamically by showAlert() in main.js. -->
     <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -478,7 +705,9 @@
         </div>
     </div>
 
-    <!-- Name confirmation modal (replaces browser prompt) -->
+    <!-- Name confirmation modal — shown when the user clicks "Save as PDF".
+         The user must type their name to confirm they have read the outcome.
+         showNamePrompt() in main.js controls this dialog and reads the input. -->
     <div class="modal fade" id="nameModal" tabindex="-1" aria-labelledby="nameModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -497,6 +726,7 @@
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

@@ -38,7 +38,8 @@ The six Yes/No questions (in order of appearance):
 On **Next**, `showSpec()`:
 - Short-circuits to a **shutdown record** if either planning check is Yes.
 - If `positiveIsoRisk === 'no'`: hides the isolation type picker (`#isoTypeSection`), shows `#posIsoNotice`, and auto-checks the spade radio — the user only needs to enter a line description. Stage 2 proceeds to Calculate with spade forced.
-- If `positiveIsoRisk === 'yes'`: shows the isolation type picker but keeps `#spadeOption` hidden — only the four valve options are available.
+- If `cse === 'yes'`: same skip behaviour — hides the picker, shows `#cseNotice`, and auto-checks spade. `positiveIsoRisk === 'no'` takes priority if both apply.
+- Otherwise: shows the isolation type picker but keeps `#spadeOption` hidden — only the four valve options are available.
 
 On **Calculate**, `getInputData()`:
 - Resolves the **Fluid Group** (1–4) from the selected fluid, escalated by operating temperature via `finalGroup()`.
@@ -63,6 +64,18 @@ All isolation images are P&ID-style pipeline diagrams (LIVE SYSTEM → valves/sp
 
 ## Fluid groups
 Defined in the `FLUIDS` array (name → base group) plus `GROUP_NAMES`. The dropdown is populated by JS, grouped by Fluid Group, with an "Other" option that reveals a manual name + group selector. Temperature thresholds live in `tempGroup()`.
+
+## Isolation controls (`setControls`)
+
+`setControls()` in `JS/main.js` selects which control statements appear at the bottom of the output card. Selection uses first-match-wins priority:
+
+1. **CSE** → CSE controls only. Hot work control is never appended when CSE applies.
+2. **SBT** → SBT controls (includes pressure build-up test for proven valves; omits it for single valve).
+3. **Flare/vent/drains** → FVD controls regardless of isolation type. Single valve gets all 6 FVD controls; proven valves (DBB/SBB/Twin Seal) get controls 1, 3, 4, 5, 6 — `fvdControl2` ("single valve briefing") is omitted as it is not applicable.
+4. **Otherwise** → standard controls (vary by fluid group and whether valve is proven).
+5. **Hot work** (any path except CSE) → hot work permit control appended at the end.
+
+The output card has **7 control slots** (`listControl1`–`listControl7` in `index.html`). The worst case is SBT with a proven valve (6 controls) + hot work = 7. There is no longer a cap that silently drops the hot work control.
 
 ## Validation / error highlighting
 
@@ -97,8 +110,8 @@ To add a new popover: add an entry to `HELP_CONTENT` and add `<button type="butt
 - The multi-line feature (`numOfLines`, `nextLine()`, `backLine()`) was removed/commented out — don't revive it without understanding the full intended flow.
 - `index.html` loads the Bootstrap **bundle** once (the modals depend on it). `help.html` still loads Bootstrap twice — the duplicate can cause conflicts there.
 - The old multiplicative-score model has been removed.
-- **`#spadeOption`** is always hidden in Stage 2 (`showSpec()` sets `display:none` unconditionally). The spade radio is only ever selected programmatically (when `positiveIsoRisk === 'no'`), never by the user.
-- **Playwright tests** in `tests/` reference the old checkbox IDs and `fillStage1` — these need updating to use the new radio names (`name="hotWork"` etc.), the `positiveIsoRisk` question, and the new table-row question structure.
+- **`#spadeOption`** is always hidden in Stage 2 (`showSpec()` sets `display:none` unconditionally). The spade radio is only ever selected programmatically (when `positiveIsoRisk === 'no'` or `cse === 'yes'`), never by the user.
+- **Playwright tests** in `tests/` reference the old checkbox IDs and `fillStage1` — these need updating to use the new radio names (`name="hotWork"` etc.), the `positiveIsoRisk` question, the CSE skip behaviour, and the new table-row question structure.
 
 ## No build step
 

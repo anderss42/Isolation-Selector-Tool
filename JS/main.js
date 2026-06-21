@@ -382,7 +382,8 @@ function getFluidInfo() {
 // Selection priority:
 //   1. CSE → show CSE controls only
 //   2. SBT → show SBT controls (with or without pressure test depending on valve type)
-//   3. Flare/vent/drains + single valve → show FVD controls
+//   3. Flare/vent/drains → show FVD controls (single valve gets all 6; proven valve drops
+//      the 'single valve briefing' control as it is not applicable)
 //   4. Otherwise → standard controls (vary by group and whether valve is proven)
 //   5. Hot work (except when CSE applies) → add hot work control at the end
 //
@@ -407,19 +408,19 @@ function setControls({ cse, sbt, flareVentDrains, group, hotWork, selValue }) {
         controls = isProvenValve
             ? [sbtControl1, sbtControl2, sbtControl3, sbtControl4, sbtControl5, sbtControl6]
             : [sbtControl1, sbtControl3, sbtControl4, sbtControl5, sbtControl6];
-    } else if (flareVentDrains && selValue === 'single') {
-        controls = [fvdControl1, fvdControl2, fvdControl3, fvdControl4, fvdControl5, fvdControl6];
+    } else if (flareVentDrains) {
+        controls = selValue === 'single'
+            ? [fvdControl1, fvdControl2, fvdControl3, fvdControl4, fvdControl5, fvdControl6]
+            : [fvdControl1, fvdControl3, fvdControl4, fvdControl5, fvdControl6];
     } else {
         controls = getStandardControls(group, isProvenValve);
     }
 
-    // Hot work adds one extra control at the end (unless CSE already applies,
-    // or the list is already at max length of 6).
-    if (hotWork && !cse && controls.length < 6) controls = [...controls, hotWorkControl];
+    // Hot work adds one extra control at the end (unless CSE already applies).
+    if (hotWork && !cse) controls = [...controls, hotWorkControl];
 
-    // Write the controls into the output card list items.
-    // There are exactly 6 list item slots; unused ones are left blank.
-    for (let i = 1; i <= 6; i++) {
+    // Write the controls into the output card list items (7 slots available).
+    for (let i = 1; i <= 7; i++) {
         document.getElementById(`listControl${i}`).textContent = controls[i - 1] || '';
     }
 }
@@ -575,15 +576,25 @@ function showSpec() {
     // user navigates back and forward.
     document.getElementById('spadeOption').style.display = 'none';
 
+    const cseRisk = getRadio('cse');
+
     if (posRisk === 'no') {
         // Positive isolation is safe — no picker needed, auto-select spade.
         document.getElementById('isoTypeSection').style.display = 'none';
         document.getElementById('posIsoNotice').style.display = 'block';
+        document.getElementById('cseNotice').style.display = 'none';
+        document.getElementById('spade').checked = true;
+    } else if (cseRisk === 'yes') {
+        // CSE forces Category I — no picker needed, auto-select spade.
+        document.getElementById('isoTypeSection').style.display = 'none';
+        document.getElementById('cseNotice').style.display = 'block';
+        document.getElementById('posIsoNotice').style.display = 'none';
         document.getElementById('spade').checked = true;
     } else {
         // User must choose from valve options.
         document.getElementById('isoTypeSection').style.display = 'block';
         document.getElementById('posIsoNotice').style.display = 'none';
+        document.getElementById('cseNotice').style.display = 'none';
         // Clear spade if it was previously auto-selected on a prior visit.
         if (document.getElementById('spade').checked) document.getElementById('spade').checked = false;
     }

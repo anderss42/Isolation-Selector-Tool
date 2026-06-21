@@ -427,6 +427,12 @@
                         <p style="font-style:italic; color:#555;">Positive isolation (spade or disconnection) will be applied — no isolation type selection required.</p>
                     </div>
 
+                    <!-- CSE notice — shown instead of the picker when cse = 'yes'
+                         (Category I is required; spade is auto-applied). -->
+                    <div id="cseNotice" style="display:none; margin-bottom:10px;">
+                        <p style="font-style:italic; color:#555;">Confined space entry requires positive isolation (spade or disconnection) — no isolation type selection required.</p>
+                    </div>
+
                     <!-- Isolation type picker — shown only when positiveIsoRisk = 'yes'.
                          The user selects the BEST isolation they can physically achieve.
                          This is then compared to the minimum required category.
@@ -659,6 +665,7 @@
                     <li id="listControl4"></li>
                     <li id="listControl5"></li>
                     <li id="listControl6"></li>
+                    <li id="listControl7"></li>
                 </ul>
                 <br>
                 <ul><span id="prepHeading">Preparation of equipment requirements:</span>

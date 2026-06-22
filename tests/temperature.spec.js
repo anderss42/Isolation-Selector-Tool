@@ -4,7 +4,7 @@ import { fillStage1, expectStage2, fillStage2AndCalculate, readOutput } from './
 async function groupFor(page, { baseGroup, temp }) {
     await fillStage1(page, { otherGroup: baseGroup, otherName: 'TempFluid', temp, period: 'oneOrLess' });
     await expectStage2(page);
-    await fillStage2AndCalculate(page, { selIso: 'spade' });
+    await fillStage2AndCalculate(page, { selIso: 'dbb' });
     return readOutput(page);
 }
 
@@ -39,7 +39,7 @@ test('temperature never downgrades a more onerous base group', async ({ page }) 
 test('standard dropdown fluid infers its group', async ({ page }) => {
     await fillStage1(page, { fluidLabel: 'Crude Oil', temp: 20, period: 'oneOrLess' });
     await expectStage2(page);
-    await fillStage2AndCalculate(page, { selIso: 'spade' });
+    await fillStage2AndCalculate(page, { selIso: 'dbb' });
     const out = await readOutput(page);
     expect(out.fluid).toContain('Crude Oil');
     expect(out.fluid).toContain('Group 1');

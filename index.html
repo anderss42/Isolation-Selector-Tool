@@ -567,16 +567,16 @@
                                     <td id="outTitle"></td>
                                 </tr>
                                 <tr>
+                                    <th scope="row">Line description:</th>
+                                    <td id="outLineDescLeft"></td>
+                                </tr>
+                                <tr>
                                     <th scope="row">Fluid / fluid group:</th>
                                     <td id="outSub"></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Operating temperature:</th>
                                     <td id="outTemp"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Containment broken duration:</th>
-                                    <td id="outDur"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -585,8 +585,8 @@
                         <table class="out-table">
                             <tbody>
                                 <tr>
-                                    <th scope="row">Line description:</th>
-                                    <td id="outLineDesc"></td>
+                                    <th scope="row">Containment broken duration:</th>
+                                    <td id="outDur"></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">Positive isolation risk &gt; valve isolation risk:</th>
@@ -608,10 +608,6 @@
                                     <th scope="row">Within a boundary isolation:</th>
                                     <td id="outBound"></td>
                                 </tr>
-                                <tr>
-                                    <th scope="row">Isolation Selected:</th>
-                                    <td id="outIsoSel"></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -624,12 +620,12 @@
                 <div id="comparisonSection">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4 class="text-start">The minimum required level for this isolation is:</h4>
+                        <h4 class="text-start">Minimum Isolation Standard:</h4>
                         <img id=outIsoImg src="" alt="" style="width:100%; height:120px; object-fit:contain; object-position:left;">
                         <p id="outIsoText"></p>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="text-start">The isolation that you selected is:</h4>
+                        <h4 class="text-start">Isolation selected:</h4>
                         <img id=outSelIsoImg src="" alt="" style="width:100%; height:120px; object-fit:contain; object-position:left;">
                         <p id="outIsoSelText"></p>
                     </div>

@@ -619,7 +619,7 @@ function showSpec() {
 function showShutdownOutcome(message) {
     document.getElementById('outTitle').textContent = document.getElementById('isoTitle').value;
 
-    ['outSub', 'outTemp', 'outDur', 'outLineDesc', 'outHotWork', 'outCSE', 'outExempt', 'outBound', 'outIsoSel']
+    ['outLineDescLeft', 'outSub', 'outTemp', 'outDur', 'outHotWork', 'outCSE', 'outExempt', 'outBound']
         .forEach(id => { document.getElementById(id).textContent = 'N/A'; });
 
     document.getElementById('comparisonSection').style.display = 'none';
@@ -709,7 +709,7 @@ function getInputData() {
     document.getElementById('outTemp').textContent = `${temp} °C`;
 
     document.getElementById('outDur').textContent = longDuration ? 'More than one shift' : 'One shift or less';
-    document.getElementById('outLineDesc').textContent = lineDescEl.value;
+    document.getElementById('outLineDescLeft').textContent = lineDescEl.value;
     document.getElementById('outPosIsoRisk').textContent = positiveIsoRisk === 'yes' ? 'Yes' : 'No';
     document.getElementById('outHotWork').textContent  = hotWork ? 'Yes' : 'No';
     document.getElementById('outCSE').textContent      = cse ? 'Yes' : 'No';
@@ -720,7 +720,6 @@ function getInputData() {
     document.getElementById('outExempt').textContent = exemptions.length ? exemptions.join('; ') : 'None';
 
     document.getElementById('outBound').textContent  = boundary ? 'Yes' : 'No';
-    document.getElementById('outIsoSel').textContent = selected.text;
 
     // Minimum required isolation (left side of comparison)
     document.getElementById('outIsoImg').src           = required.img;

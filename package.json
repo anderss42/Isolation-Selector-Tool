@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/anderss42/Isolation-Selector-Tool#readme",
   "devDependencies": {
-    "@playwright/test": "^1.60.0"
+    "@playwright/test": "^1.61.0",
+    "serve": "^14.2.6"
   }
 }

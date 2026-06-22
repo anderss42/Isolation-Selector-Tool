@@ -7,7 +7,8 @@ import {
 const GROUPS    = [1, 2, 3, 4];
 const PERIODS   = ['oneOrLess', 'moreThanShift'];
 const HOTWORK   = [false, true];
-const ISO_TYPES = ['spade', 'dbb', 'sbb', 'single'];
+// spade is never user-selectable; it is covered by positive-iso-risk.spec.js
+const ISO_TYPES = ['dbb', 'twin_seal', 'sbb', 'single'];
 
 // Full group × duration × hotwork × selected-isolation matrix.
 const combinations = [];
@@ -29,7 +30,7 @@ test.describe('Group/duration/hot-work decision table', () => {
                 title: label,
                 otherGroup: c.group,
                 otherName: `Fluid ${label}`,
-                temp: 20, // neutral — no temperature escalation
+                temp: 20,
                 period: c.period,
                 hotWork: c.hotWork,
             });
@@ -44,9 +45,11 @@ test.describe('Group/duration/hot-work decision table', () => {
             if (ok) {
                 expect(out.outcome).toContain('meets the minimum standard');
                 expect(out.outImg).toContain('caution');
+                expect(out.controlsHeading).toBe('Isolation Controls required are:');
             } else {
                 expect(out.outcome).toContain('does not meet the minimum standard');
                 expect(out.outImg).toContain('stop');
+                expect(out.controlsHeading).toContain('Suggested controls');
             }
         });
     }
@@ -56,7 +59,18 @@ test('hot work does NOT escalate groups 3 and 4', async ({ page }) => {
     // Group 3, one shift, hot work → still IIB (hot work only affects groups 1 & 2).
     await fillStage1(page, { otherGroup: 3, otherName: 'G3', temp: 20, period: 'oneOrLess', hotWork: true });
     await expectStage2(page);
-    await fillStage2AndCalculate(page, { selIso: 'spade' });
+    await fillStage2AndCalculate(page, { selIso: 'dbb' });
     const out = await readOutput(page);
     expect(out.minReqText).toContain('Category IIB');
+});
+
+test('twin seal valve maps to Category IIA same as DBB', async ({ page }) => {
+    // Group 1, short, no hot work → requires IIA. Twin seal satisfies IIA.
+    await fillStage1(page, { otherGroup: 1, otherName: 'G1', temp: 20, period: 'oneOrLess' });
+    await expectStage2(page);
+    await fillStage2AndCalculate(page, { selIso: 'twin_seal' });
+    const out = await readOutput(page);
+    expect(out.selIsoText).toContain('Category IIA');
+    expect(out.selIsoImg).toContain('twin_seal');
+    expect(out.outcome).toContain('meets the minimum standard');
 });

@@ -44,7 +44,7 @@ test('non-hazardous (G4) deviation does not require OIM', async ({ page }) => {
 test('compliant isolation shows no authorisation guidance', async ({ page }) => {
     await fillStage1(page, { otherGroup: 4, otherName: 'Seawater-ish', temp: 20, period: 'oneOrLess' });
     await expectStage2(page);
-    await fillStage2AndCalculate(page, { selIso: 'spade' });
+    await fillStage2AndCalculate(page, { selIso: 'dbb' }); // G4 short → requires III; dbb meets
     const out = await readOutput(page);
     expect(out.outcome).toContain('meets the minimum standard');
     expect(out.authGuidance).toBe('');

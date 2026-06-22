@@ -273,7 +273,7 @@ const fvdControl6 = "AA attends TBT.";
 
 // Confined Space Entry (CSE) controls
 const CSEControl1 = "Complete separation of the plant / equipment to be worked on from other parts of the system.";
-const CSEControl2 = "Controls required as per TUK-17-C-004 section 8";
+const CSEControl2 = "Controls required as per TUK-17-C-016 Confined Space Entry procedure.";
 
 // ── EQUIPMENT PREPARATION TEXT ───────────────────────────────────────────────
 //
@@ -747,7 +747,7 @@ function getInputData() {
             `The isolation selected (${selected.label}) does not meet the minimum standard required (${required.label}). ` +
             `A Level 2 risk assessment / deviation MUST be carried out before this isolation is used.`;
         outcomeEl.style.color = 'red';
-        outcomeEl.style.fontSize = '24px';
+        outcomeEl.style.fontSize = '18px';
 
         // Show who needs to authorise the deviation
         const authorisers = getAuthorisers(group, requiredCat);
@@ -860,20 +860,27 @@ async function printPDF() {
         const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
         const pageW = 210, pageH = 297;
-        const margin = 10;                  // equal margins on every side (mm)
+
+        // Scale the image to fill the page width, then shrink uniformly if it
+        // would be taller than the page — guaranteeing a single-page output.
+        // A 10 mm margin is applied; when height-scaling kicks in the image is
+        // centred so L/R margins remain symmetric (though slightly wider than
+        // the top margin for very tall outputs).
+        const margin = 10;
         const usableW = pageW - margin * 2;
         const usableH = pageH - margin * 2;
 
-        // Fit the whole card onto a single A4 page: render at full content width,
-        // then scale down (keeping aspect ratio) if it would be taller than one page.
         let imgW = usableW;
         let imgH = imgW * (canvas.height / canvas.width);
         if (imgH > usableH) {
-            imgH = usableH;
-            imgW = imgH * (canvas.width / canvas.height);
+            const scale = usableH / imgH;
+            imgW *= scale;
+            imgH  = usableH;
         }
-        const x = (pageW - imgW) / 2; // centre horizontally if narrowed
-        pdf.addImage(imgData, 'JPEG', x, margin, imgW, imgH);
+
+        const x = (pageW - imgW) / 2;
+        const y = (pageH - imgH) / 2;   // centre vertically too, so all margins balance
+        pdf.addImage(imgData, 'JPEG', x, y, imgW, imgH);
         pdf.save(filename);
     } finally {
         element.classList.remove('pdf-render');
